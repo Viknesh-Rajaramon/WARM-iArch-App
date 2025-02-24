@@ -55,10 +55,10 @@ num setParameterValue(String value) {
   return num.parse(value);
 }
 
-Map<String, num> calculateReducedParameterValues(Map<String, num> sensorReadings, String optionNumber) {
+Map<String, num> calculateReducedParameterValues(Map<String, num> sensorReadings, String condition) {
   Map<String, String> revitalizationOption = remediationConditions.firstWhere(
-    (element) => element["option"] == optionNumber,
-    orElse: () => throw Exception("Revitalization option $optionNumber not valid!!!!"),
+    (element) => element["condition"] == condition,
+    orElse: () => throw Exception("Revitalization option $condition not valid!!!!"),
   );
 
   Map<String, num> newSensorReadings = Map.from(sensorReadings);
@@ -83,9 +83,9 @@ Map<String, num> calculateReducedParameterValues(Map<String, num> sensorReadings
 List<Revitalization> calculateRevitalizationIArchValues(Map<String, num> sensorReadings) {
   List<Revitalization> options = [];
   for (Map<String, String> remediationCondition in remediationConditions) {
-    Map<String, num> newSensorReadings = calculateReducedParameterValues(sensorReadings, remediationCondition["option"]!);
+    Map<String, num> newSensorReadings = calculateReducedParameterValues(sensorReadings, remediationCondition["condition"]!);
     num iArchValue = calculateIArchValue(newSensorReadings);
-    options.add(Revitalization(remediationCondition["option"]!, remediationCondition["condition"]!, iArchValue));
+    options.add(Revitalization(remediationCondition["condition"]!, iArchValue));
   }
 
   return options;
