@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class SensorDisplayUnit {
   final String displayName;
   final String unit;
@@ -12,8 +14,9 @@ class BreakpointValues {
   final num bpLow;
   final num bpHigh;
   final String comments;
+  final Color color;
 
-  const BreakpointValues(this.iLow, this.iHigh, this.bpLow, this.bpHigh, this.comments);
+  const BreakpointValues(this.iLow, this.iHigh, this.bpLow, this.bpHigh, this.comments, this.color);
 }
 
 class IValue {
@@ -24,9 +27,8 @@ class IValue {
 }
 
 class Revitalization {
-  final String option;
   final String condition;
   final num iArch;
 
-  const Revitalization(this.option, this.condition, this.iArch);
+  const Revitalization(this.condition, this.iArch);
 }
