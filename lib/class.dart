@@ -4,8 +4,10 @@ class SensorDisplayUnit {
   final String displayName;
   final String unit;
   final int decimalPoint;
+  final num reading;
+  final Color color;
 
-  const SensorDisplayUnit(this.displayName, this.unit, this.decimalPoint);
+  const SensorDisplayUnit(this.displayName, this.unit, this.reading, this.decimalPoint, this.color);
 }
 
 class BreakpointValues {
