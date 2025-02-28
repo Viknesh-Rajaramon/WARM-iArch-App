@@ -1,7 +1,10 @@
+import "dart:async";
 import "package:flutter/material.dart";
+
 import "package:warm_app/calculation.dart";
 import "package:warm_app/util.dart";
 import "package:warm_app/class.dart";
+import "package:warm_app/api.dart";
 
 
 class HomePage extends StatefulWidget {
@@ -15,22 +18,38 @@ class _HomePageState extends State<HomePage> {
   String? selectedMonitor;
   num iArchValue = 0;
   bool readingsVisible = false;
+  bool isLoading = false;
   List<Revitalization> remedy = [];
-  
-  final Map<String, Map<String, num>> monitorData = {
-    "Monitor A": {
-      "PM2.5": 56,
-      "PM10": 70,
-      "TVOC": 300,
-      "CO2": 600,
-      "RH": 35,
-      "T": 73,
-    },
-  };
+  List<String> monitors = [];
+  Map<String, Map<String, num>> monitorData = {};
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() => isLoading = true);
+    getMonitorData();
+    Timer.periodic(const Duration(minutes: 1), (timer) => getMonitorData());
+  }
+
+  Future getMonitorData() async {
+    var data = await getCurrentMonitorDataFromAllLocations(token);
+
+    setState(() {
+      monitorData = data;
+      monitors = monitorData.keys.toList(growable: false);
+      isLoading = false;
+
+      if (selectedMonitor != null) {
+        updateData(selectedMonitor!);
+      }
+    });
+  }
 
   void updateData(String monitor) {
+    if (isLoading) {
+      return;
+    }
     setState(() {
-      readingsVisible = false;
       selectedMonitor = monitor;
       iArchValue = calculateIArchValue(monitorData[monitor]!);
       remedy = calculateRevitalizationIArchValues(monitorData[monitor]!);
@@ -41,38 +60,50 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: AppTitle(),
+        title: isLoading ? null : AppTitle(),
         automaticallyImplyLeading: false,
       ),
-      body: SingleChildScrollView(
+      body: isLoading ? Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(height: 10),
+            Text("Please wait while the data is being loaded", style: TextStyle(fontSize: 16)),
+          ],
+        ),
+      ) : SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               MonitorDropdown(
-                monitors: monitorData.keys.toList(),
+                monitors: monitors,
                 selectedMonitor: selectedMonitor,
                 onMonitorSelected: updateData,
               ),
               SizedBox(height: 25),
               if (selectedMonitor != null) ...[
-                IArchDisplay(iArchValue: iArchValue),
-                SizedBox(height: 25),
                 Center(
                   child: ElevatedButton(
                     onPressed: () => setState(() => readingsVisible = !readingsVisible),
                     child: Text(readingsVisible ? 'Hide Monitor Data' : 'View Monitor Data'),
                   ),
                 ),
-                if (readingsVisible) MonitorDataTable(monitorData: monitorData[selectedMonitor]!),
-                SizedBox(height: 25),
-                RemediationTable(remedy: remedy)
+                if (readingsVisible) ...[
+                    MonitorDataTable(monitorData: monitorData[selectedMonitor]!),
+                  ],
+                  SizedBox(height: 25),
+                  IArchDisplay(iArchValue: iArchValue),
+                  SizedBox(height: 25),
+                  RemediationTable(remedy: remedy)
+                ],
               ],
-            ],
+            ),
           ),
         ),
-      ),
     );
   }
 }
@@ -189,20 +220,19 @@ class MonitorDataTable extends StatelessWidget {
           DataColumn(label: Text("")),
           DataColumn(label: Text("")),
         ],
-        rows: monitorData.entries.map((entry) {
-          SensorDisplayUnit sensorDisplay = getDisplayName(entry.key);
+        rows: getDisplayData(monitorData).map((value) {
           return DataRow(
             cells: [
               DataCell(
                 Text(
-                  "${sensorDisplay.displayName} (${sensorDisplay.unit})",
+                  "${value.displayName} (${value.unit})",
                   style: TextStyle(fontSize: 16),
                 ),
               ),
               DataCell(
                 Text(
-                  entry.value.toStringAsFixed(sensorDisplay.decimalPoint),
-                  style: TextStyle(fontSize: 16),
+                  value.reading.toStringAsFixed(value.decimalPoint),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, backgroundColor: value.color),
                 ),
               ),
             ]
