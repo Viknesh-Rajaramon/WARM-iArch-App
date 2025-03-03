@@ -8,7 +8,12 @@ import "package:warm_app/api.dart";
 
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final String uid;
+
+  const HomePage({
+    required this.uid,
+    super.key,
+  });
 
   @override
   _HomePageState createState() => _HomePageState();

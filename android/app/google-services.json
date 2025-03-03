@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1069971628830",
+    "project_id": "warm-app-26064",
+    "storage_bucket": "warm-app-26064.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1069971628830:android:daa9ce39428d7e4f9b5f0f",
+        "android_client_info": {
+          "package_name": "com.example.warm_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBF8w-e_UvANshxK3TGd1VP4SV4bXF1BUo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
