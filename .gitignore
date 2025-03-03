@@ -49,7 +49,3 @@ app.*.map.json
 /lib/firebase_options.dart
 firebase.exe
 firebase.json
-
-
-# DB related
-*.sql
