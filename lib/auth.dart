@@ -20,7 +20,6 @@ class _AuthPageState extends State<AuthPage> {
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
-      print(user.user!.uid);
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => HomePage(uid: user.user!.uid)),
       );

@@ -1,4 +1,5 @@
 import "dart:async";
+import "package:cloud_firestore/cloud_firestore.dart";
 import "package:flutter/material.dart";
 
 import "package:warm_app/calculation.dart";
@@ -20,28 +21,75 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  late String uid;
+  String? token;
+  Map<int, String> locationIdsPlantower = {};
+
+  bool isLoading = false;
+  Map<String, Map<String, num>> monitorData = {};
   String? selectedMonitor;
   num iArchValue = 0;
   bool readingsVisible = false;
-  bool isLoading = false;
   List<Revitalization> remedy = [];
-  List<String> monitors = [];
-  Map<String, Map<String, num>> monitorData = {};
 
   @override
   void initState() {
     super.initState();
-    setState(() => isLoading = true);
+    setState(() {
+      isLoading = true;
+      uid = widget.uid;
+    });
+    
+    getUserDataFromDB();
     getMonitorData();
+
     Timer.periodic(const Duration(minutes: 1), (timer) => getMonitorData());
   }
 
+  Future getUserDataFromDB() async {
+    FirebaseFirestore db = FirebaseFirestore.instance;
+    db.collection("users").doc(uid).get().then(
+      (DocumentSnapshot doc) async {
+        final data = doc.data() as Map<String, dynamic>;
+        String projectId = data["project_id"].toString();
+        
+        final results = await Future.wait([getToken(projectId, db), getMonitors(projectId, db)]);
+
+        setState(() {
+          token = results[0] as String;
+          locationIdsPlantower = results[1] as Map<int, String>;
+        });
+      },
+      onError: (e) => print("User not found: $e"),
+    );
+  }
+
+  Future<String> getToken(String projectId, FirebaseFirestore db) async {
+    DocumentSnapshot project = await db.collection("projects").doc(projectId).get();
+    final data = project.data() as Map<String, dynamic>;
+    String token = data["token"];
+
+    return token;
+  }
+
+  Future<Map<int, String>> getMonitors(String projectId, FirebaseFirestore db) async {
+    Map<int, String> locationPT = {};
+    
+    QuerySnapshot monitors = await db.collection("monitors").where("project_id", isEqualTo: projectId).get();
+    for (var docSnapshot in monitors.docs) {
+      final data = docSnapshot.data() as Map<String, dynamic>;
+      int locationId = int.parse(data["location_id"]);
+      locationPT[locationId] = data["plantower_serial"];
+    }
+
+    return locationPT;
+  }
+
   Future getMonitorData() async {
-    var data = await getCurrentMonitorDataFromAllLocations(token);
+    var data = await getCurrentMonitorDataFromAllLocations(token!, locationIdsPlantower);
 
     setState(() {
       monitorData = data;
-      monitors = monitorData.keys.toList(growable: false);
       isLoading = false;
 
       if (selectedMonitor != null) {
@@ -85,7 +133,7 @@ class _HomePageState extends State<HomePage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               MonitorDropdown(
-                monitors: monitors,
+                monitors: monitorData.keys.toList(growable: false),
                 selectedMonitor: selectedMonitor,
                 onMonitorSelected: updateData,
               ),

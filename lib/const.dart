@@ -110,8 +110,11 @@ const List<Map<String, String>> remediationConditions = [
   {"condition": "Two CR Box + TVOC remediation + Ventilation + Dehumidifier + Temperature (75\u2070F)", "PMReduction": "0.8", "TVOCReduction": "0.8", "CO2Reduction": "0.5", "RHReduction": "0.2", "TSet": "75"},
 ];
 
-const Map<String, Map<String, num>> scalimgFactorsForCorrection = {
-  "20231218": {"scalingFactor": 0.03525, "intercept":	0},
-  "20240104": {"scalingFactor": 0.02896, "intercept":	0},
-  "20231030": {"scalingFactor": 0.02838, "intercept":	0}
+const Map<num, Map<String, num>> scalingFactorsForCorrection = {
+  20231030: {"scalingFactor": 0.02838, "intercept":	0},
+  20231218: {"scalingFactor": 0.03525, "intercept":	0},
+  20240104: {"scalingFactor": 0.02896, "intercept":	0},
+  20240826: {"scalingFactor": 0.03863, "intercept":	0},
 };
+
+const String defaultPTSerial = "2023-103000000";

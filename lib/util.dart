@@ -59,5 +59,10 @@ void applyCorrectionsToRawData(Map<String, num> monitorData) {
   monitorData["TVOC"] = convertPPBToPPM(monitorData["TVOC"]!);
 
   // Apply EPA Correction Formula for PM 2.5
-  monitorData["PM2.5"] = applyCorrectionFormulaPM2(monitorData["PM2.5"]!, monitorData["pm003Count"]!, monitorData["RH"]!);
+  monitorData["PM2.5"] = applyCorrectionFormulaPM2(monitorData["PM2.5"]!, monitorData["pm003Count"]!, monitorData["RH"]!, monitorData["plantower"]!);
+}
+
+num convertPTSerialToNum(String ptSerial) {
+  String serialStart = ptSerial.replaceAll("-", "").substring(0, 8);
+  return int.parse(serialStart);
 }

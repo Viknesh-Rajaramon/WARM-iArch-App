@@ -4,18 +4,26 @@ import "package:flutter/foundation.dart";
 import "package:http/http.dart";
 
 import "package:warm_app/util.dart";
+import "package:warm_app/const.dart";
 
 const apiString = "https://api.airgradient.com/public/api/v1/locations/measures/current?token={token}";
-const token = "41ef5cae-2f14-470c-90ef-e64cb2fb8512";
 
-Future<Map<String, Map<String, num>>> getCurrentMonitorDataFromAllLocations(String token) async {
+class Compute {
+  final String responseBody;
+  final Map<int, String> locationIds;
+
+  const Compute(this.responseBody, this.locationIds);
+}
+
+Future<Map<String, Map<String, num>>> getCurrentMonitorDataFromAllLocations(String token, Map<int, String> locationIds) async {
   String uri = apiString.replaceAll("{token}", token);
-  
+
   try {
     final response = await get(Uri.parse(uri));
 
     if (response.statusCode == HttpStatus.ok) {
-      return await compute(getProcessedCurrentMonitorData, response.body);
+      Compute computeData = Compute(response.body, locationIds);
+      return await compute(getProcessedCurrentMonitorData, computeData);
     } else {
       throw Exception('Failed to load data');
     }
@@ -25,23 +33,28 @@ Future<Map<String, Map<String, num>>> getCurrentMonitorDataFromAllLocations(Stri
   }
 }
 
-Map<String, Map<String, num>> getProcessedCurrentMonitorData(String responseBody) {
-  List<Map<String, dynamic>> monitors = List<Map<String, dynamic>>.from(json.decode(responseBody));
+Map<String, Map<String, num>> getProcessedCurrentMonitorData(Compute data) {
+  List<Map<String, dynamic>> monitors = List<Map<String, dynamic>>.from(json.decode(data.responseBody));
 
   Map<String, Map<String, num>> monitorData = {};
 
   for (Map<String, dynamic> monitor in monitors) {
-    monitorData[monitor["locationName"]] = {
-      "PM2.5": monitor["pm02"] ?? 0,
-      "PM10": monitor["pm10"] ?? 0,
-      "TVOC": monitor["tvocIndex"] ?? 0,
-      "CO2": monitor["rco2"] ?? 0,
-      "RH": monitor["rhum"] ?? 0,
-      "T": monitor["atmp"] ?? 0,
-      "pm003Count": monitor["pm003Count"] ?? 0,
-    };
+    int locationId = monitor["locationId"];
+    
+    if (data.locationIds.containsKey(locationId)) {
+      monitorData[monitor["locationName"]] = {
+        "PM2.5": monitor["pm02"] ?? 0,
+        "PM10": monitor["pm10"] ?? 0,
+        "TVOC": monitor["tvocIndex"] ?? 0,
+        "CO2": monitor["rco2"] ?? 0,
+        "RH": monitor["rhum"] ?? 0,
+        "T": monitor["atmp"] ?? 0,
+        "pm003Count": monitor["pm003Count"] ?? 0,
+        "plantower": convertPTSerialToNum(data.locationIds[locationId] ?? defaultPTSerial),
+      };
 
-    applyCorrectionsToRawData(monitorData[monitor["locationName"]]!);
+      applyCorrectionsToRawData(monitorData[monitor["locationName"]]!);
+    }
   }
 
   return monitorData;
