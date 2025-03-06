@@ -20,7 +20,7 @@ num pm25Correction(num pm25, num pm003Count, num scalingFactor, num intercept) {
 
 // https://www.airgradient.com/documentation/correction-algorithms/#pm_epa_correction
 // https://www.airgradient.com/blog/epa-correction-and-airgradient/#implementation
-num applyCorrectionFormulaPM2(num pm25, num pm003Count, num rh) {
+num applyCorrectionFormulaPM2(num pm25, num pm003Count, num rh, num plantowerSerial) {
   num value = 0.0;
 
   if (rh < 0) {
@@ -31,7 +31,8 @@ num applyCorrectionFormulaPM2(num pm25, num pm003Count, num rh) {
     rh = 100;
   }
 
-  pm25 = pm25Correction(pm25, pm003Count, scalimgFactorsForCorrection["20231030"]!["scalingFactor"]!, scalimgFactorsForCorrection["20231030"]!["intercept"]!);
+  Map<String, num> plantowerFactors = scalingFactorsForCorrection[plantowerSerial]!;
+  pm25 = pm25Correction(pm25, pm003Count, plantowerFactors["scalingFactor"]!, plantowerFactors["intercept"]!);
 
   if (pm25 == 0) {
     value = 0.0;
