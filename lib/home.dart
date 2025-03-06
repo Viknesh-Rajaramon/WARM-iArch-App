@@ -25,7 +25,7 @@ class _HomePageState extends State<HomePage> {
   String? token;
   Map<int, String> locationIdsPlantower = {};
 
-  bool isLoading = false;
+  bool isLoading = true;
   Map<String, Map<String, num>> monitorData = {};
   String? selectedMonitor;
   num iArchValue = 0;
@@ -35,10 +35,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    setState(() {
-      isLoading = true;
-      uid = widget.uid;
-    });
+    uid = widget.uid;
     
     getUserDataFromDB();
     getMonitorData();
@@ -48,28 +45,29 @@ class _HomePageState extends State<HomePage> {
 
   Future getUserDataFromDB() async {
     FirebaseFirestore db = FirebaseFirestore.instance;
-    db.collection("users").doc(uid).get().then(
-      (DocumentSnapshot doc) async {
-        final data = doc.data() as Map<String, dynamic>;
-        String projectId = data["project_id"].toString();
-        
-        final results = await Future.wait([getToken(projectId, db), getMonitors(projectId, db)]);
+    try {
+      DocumentSnapshot doc = await db.collection("users").doc(uid).get();
+      final data = doc.data() as Map<String, dynamic>;
+      String projectId = data["project_id"];
+          
+      final results = await Future.wait([getToken(projectId, db), getMonitors(projectId, db)]);
 
+      if (mounted) {
         setState(() {
           token = results[0] as String;
           locationIdsPlantower = results[1] as Map<int, String>;
         });
-      },
-      onError: (e) => print("User not found: $e"),
-    );
+      }
+    } catch (e) {
+      print("User not found: $e");
+    }
   }
 
   Future<String> getToken(String projectId, FirebaseFirestore db) async {
     DocumentSnapshot project = await db.collection("projects").doc(projectId).get();
     final data = project.data() as Map<String, dynamic>;
-    String token = data["token"];
 
-    return token;
+    return data["token"];
   }
 
   Future<Map<int, String>> getMonitors(String projectId, FirebaseFirestore db) async {
@@ -86,26 +84,36 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future getMonitorData() async {
+    if (token == null) {
+      return;
+    }
+
     var data = await getCurrentMonitorDataFromAllLocations(token!, locationIdsPlantower);
 
-    setState(() {
-      monitorData = data;
-      isLoading = false;
+    if (mounted) {
+      setState(() {
+        monitorData = data;
+        isLoading = false;
 
-      if (selectedMonitor != null) {
-        updateData(selectedMonitor!);
-      }
-    });
+        if (selectedMonitor != null) {
+          updateData(selectedMonitor!);
+        }
+      });
+    }
   }
 
   void updateData(String monitor) {
     if (isLoading) {
       return;
     }
+
     setState(() {
       selectedMonitor = monitor;
-      iArchValue = calculateIArchValue(monitorData[monitor]!);
-      remedy = calculateRevitalizationIArchValues(monitorData[monitor]!);
+      var monitorValues = monitorData[monitor];
+      if (monitorValues != null) {
+        iArchValue = calculateIArchValue(monitorValues);
+        remedy = calculateRevitalizationIArchValues(monitorValues);
+      }
     });
   }
 
@@ -113,10 +121,10 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: isLoading ? null : AppTitle(),
+        title: isLoading ? null : const AppTitle(),
         automaticallyImplyLeading: false,
       ),
-      body: isLoading ? Center(
+      body: isLoading ? const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -137,7 +145,7 @@ class _HomePageState extends State<HomePage> {
                 selectedMonitor: selectedMonitor,
                 onMonitorSelected: updateData,
               ),
-              SizedBox(height: 25),
+              const SizedBox(height: 25),
               if (selectedMonitor != null) ...[
                 Center(
                   child: ElevatedButton(
@@ -148,9 +156,9 @@ class _HomePageState extends State<HomePage> {
                 if (readingsVisible) ...[
                     MonitorDataTable(monitorData: monitorData[selectedMonitor]!),
                   ],
-                  SizedBox(height: 25),
+                  const SizedBox(height: 25),
                   IArchDisplay(iArchValue: iArchValue),
-                  SizedBox(height: 25),
+                  const SizedBox(height: 25),
                   RemediationTable(remedy: remedy)
                 ],
               ],
