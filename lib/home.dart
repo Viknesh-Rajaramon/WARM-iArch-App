@@ -1,18 +1,19 @@
 import "dart:async";
-import "package:cloud_firestore/cloud_firestore.dart";
 import "package:flutter/material.dart";
 
 import "package:warm_app/calculation.dart";
 import "package:warm_app/util.dart";
 import "package:warm_app/class.dart";
 import "package:warm_app/api.dart";
+import "package:warm_app/db/project.dart";
+import "package:warm_app/db/monitor.dart";
 
 
 class HomePage extends StatefulWidget {
-  final String uid;
+  final String projectId;
 
   const HomePage({
-    required this.uid,
+    required this.projectId,
     super.key,
   });
 
@@ -21,8 +22,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late String uid;
-  String? token;
+  late String projectId;
+  late String token;
   Map<int, String> locationIdsPlantower = {};
 
   bool isLoading = true;
@@ -35,60 +36,31 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    uid = widget.uid;
+    projectId = widget.projectId;
     
-    getUserDataFromDB();
+    getProjectDataFromDB();
     getMonitorData();
 
     Timer.periodic(const Duration(minutes: 1), (timer) => getMonitorData());
   }
 
-  Future getUserDataFromDB() async {
-    FirebaseFirestore db = FirebaseFirestore.instance;
-    try {
-      DocumentSnapshot doc = await db.collection("users").doc(uid).get();
-      final data = doc.data() as Map<String, dynamic>;
-      String projectId = data["project_id"];
-          
-      final results = await Future.wait([getToken(projectId, db), getMonitors(projectId, db)]);
+  Future getProjectDataFromDB() async {
+    final results = await Future.wait([getTokenFromProjectId(projectId), getLocationIdsAndPlantowerSerialByProjectId(projectId)]);
 
-      if (mounted) {
-        setState(() {
-          token = results[0] as String;
-          locationIdsPlantower = results[1] as Map<int, String>;
-        });
-      }
-    } catch (e) {
-      print("User not found: $e");
+    if (mounted) {
+      setState(() {
+        token = results[0] as String;
+        locationIdsPlantower = results[1] as Map<int, String>;
+      });
     }
-  }
-
-  Future<String> getToken(String projectId, FirebaseFirestore db) async {
-    DocumentSnapshot project = await db.collection("projects").doc(projectId).get();
-    final data = project.data() as Map<String, dynamic>;
-
-    return data["token"];
-  }
-
-  Future<Map<int, String>> getMonitors(String projectId, FirebaseFirestore db) async {
-    Map<int, String> locationPT = {};
-    
-    QuerySnapshot monitors = await db.collection("monitors").where("project_id", isEqualTo: projectId).get();
-    for (var docSnapshot in monitors.docs) {
-      final data = docSnapshot.data() as Map<String, dynamic>;
-      int locationId = int.parse(data["location_id"]);
-      locationPT[locationId] = data["plantower_serial"];
-    }
-
-    return locationPT;
   }
 
   Future getMonitorData() async {
-    if (token == null) {
+    if (token == "") {
       return;
     }
 
-    var data = await getCurrentMonitorDataFromAllLocations(token!, locationIdsPlantower);
+    var data = await getCurrentMonitorDataFromAllLocations(token, locationIdsPlantower);
 
     if (mounted) {
       setState(() {

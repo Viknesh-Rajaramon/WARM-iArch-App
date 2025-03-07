@@ -1,7 +1,8 @@
+import "dart:io";
 import "package:flutter/material.dart";
-import "package:firebase_auth/firebase_auth.dart";
 
 import "package:warm_app/home.dart";
+import "package:warm_app/db/user.dart";
 
 class AuthPage extends StatefulWidget {
   const AuthPage({super.key});
@@ -15,31 +16,25 @@ class _AuthPageState extends State<AuthPage> {
   final TextEditingController passwordController = TextEditingController();
 
   Future<void> signIn() async {
-    try {
-      UserCredential user = await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: emailController.text.trim(),
-        password: passwordController.text.trim(),
-      );
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => HomePage(uid: user.user!.uid)),
-      );
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("The user does not exist")),
-        );
-      } else if (e.code == 'wrong-password') {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("The password you have entered is incorrect")),
+    final result = await getUserByEmail(emailController.text.trim());
+    if (result.$2 == HttpStatus.found) {
+      final User user = result.$1 as User;
+      if (isPasswordAndHashEqual(passwordController.text.trim(), user.password, user.salt)) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => HomePage(projectId: user.projectId)),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.message!)),
-        );
+        SnackBar(content: Text("Incorrect password. Please try again.")),
+      );
       }
-    } catch (e) {
+    } else if (result.$2 == HttpStatus.notFound) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString())),
+        SnackBar(content: Text("User does not exist.")),
+      );
+    } else{
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Login failed. Please try again.")),
       );
     }
   }
