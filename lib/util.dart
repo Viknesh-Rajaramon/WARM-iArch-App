@@ -6,26 +6,22 @@ import "package:warm_app/correction_formula.dart";
 
 // Get the display data and the unit for sensor readings
 List<SensorDisplayUnit> getDisplayData(Map<String, num> data) {
-  List<SensorDisplayUnit> monitorDisplayData = [];
-
-  for (var entry in displayNames) {
-    Color color = getColor(entry["reading"]!, data[entry["reading"]!]!);
-    SensorDisplayUnit displayData = SensorDisplayUnit(entry["displayName"]!, entry["unit"]!, data[entry["reading"]!]!, int.parse(entry["decimalPoint"]!), color);
-    monitorDisplayData.add(displayData);
-  }
-  
-  return monitorDisplayData;
+  return displayNames.map((entry) {
+    final reading = entry["reading"]!;
+    return SensorDisplayUnit(
+      entry["displayName"]!,
+      entry["unit"]!,
+      data[reading]!,
+      int.parse(entry["decimalPoint"]!),
+      getColor(reading, data[reading]!),
+    );
+  }).toList();
 }
 
 // Get the color code for sensor reading
-Color getColor(String name, num rawInput) {
-  if (iValues.containsKey(name)) {
-    BreakpointValues breakpointValue = getBreakpointValues(name, rawInput);
-    return breakpointValue.color;
-  }
-
-  return Color.fromRGBO(255, 255, 255, 1.0);
-}
+Color getColor(String name, num rawInput) => iValues.containsKey(name)
+  ? getBreakpointValues(name, rawInput).color
+  : Color.fromRGBO(255, 255, 255, 1.0);
 
 BreakpointValues getBreakpointValues(String name, num rawInput) {
   Map<int, dynamic>? breakpointValuesMap = iValues[name];
@@ -33,23 +29,13 @@ BreakpointValues getBreakpointValues(String name, num rawInput) {
     throw ArgumentError("Invalid name: $name");
   }
 
-  for (var entry in breakpointValuesMap.entries) {
-    BreakpointValues bpValue = entry.value;
-    if (bpValue.bpLow <= rawInput && rawInput <= bpValue.bpHigh) {
-      return entry.value;
-    }
-  }
-  
-  return breakpointValuesMap[10];
+  return breakpointValuesMap.entries.map((e) => e.value)
+  .firstWhere((bpValue) => bpValue.bpLow <= rawInput && rawInput <= bpValue.bpHigh, orElse: () => breakpointValuesMap[10]);
 }
 
-num convertCelciusToFarenheit(num temp) {
-  return num.parse(temp.toStringAsFixed(1)) * 1.8 + 32;
-}
+num convertCelciusToFarenheit(num temp) => num.parse(temp.toStringAsFixed(1)) * 1.8 + 32;
 
-num convertPPBToPPM(num value) {
-  return value * 0.001;
-}
+num convertPPBToPPM(num value) => value * 0.001;
 
 void applyCorrectionsToRawData(Map<String, num> monitorData) {
   // Convert Temperature from Celcius to Farenheit
@@ -62,7 +48,5 @@ void applyCorrectionsToRawData(Map<String, num> monitorData) {
   monitorData["PM2.5"] = applyCorrectionFormulaPM2(monitorData["PM2.5"]!, monitorData["pm003Count"]!, monitorData["RH"]!, monitorData["plantower"]!);
 }
 
-num convertPTSerialToNum(String ptSerial) {
-  String serialStart = ptSerial.replaceAll("-", "").substring(0, 8);
-  return int.parse(serialStart);
-}
+num convertPTSerialToNum(String ptSerial) => int.parse(ptSerial.replaceAll("-", "").substring(0, 8));
+

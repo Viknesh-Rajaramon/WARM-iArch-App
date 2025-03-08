@@ -44,7 +44,7 @@ class _HomePageState extends State<HomePage> {
     Timer.periodic(const Duration(minutes: 1), (timer) => getMonitorData());
   }
 
-  Future getProjectDataFromDB() async {
+  Future<void> getProjectDataFromDB() async {
     final results = await Future.wait([getTokenFromProjectId(projectId), getLocationIdsAndPlantowerSerialByProjectId(projectId)]);
 
     if (mounted) {
@@ -55,7 +55,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future getMonitorData() async {
+  Future<void> getMonitorData() async {
     if (token == "") {
       return;
     }
@@ -79,14 +79,14 @@ class _HomePageState extends State<HomePage> {
       return;
     }
 
-    setState(() {
-      selectedMonitor = monitor;
-      var monitorValues = monitorData[monitor];
-      if (monitorValues != null) {
+    final monitorValues = monitorData[monitor];
+    if (monitorValues != null) {
+      setState(() {
+        selectedMonitor = monitor;
         iArchValue = calculateIArchValue(monitorValues);
         remedy = calculateRevitalizationIArchValues(monitorValues);
-      }
-    });
+      });
+    }
   }
 
   @override
@@ -96,51 +96,58 @@ class _HomePageState extends State<HomePage> {
         title: isLoading ? null : const AppTitle(),
         automaticallyImplyLeading: false,
       ),
-      body: isLoading ? const Center(
+      body: isLoading ? loadingBar() : buildContent(),
+    );
+  }
+
+  Widget loadingBar() {
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          CircularProgressIndicator(),
+          SizedBox(height: 10),
+          Text("Please wait while the data is being loaded", style: TextStyle(fontSize: 16)),
+        ],
+      ),
+    );
+  }
+
+  Widget buildContent() {
+    return SingleChildScrollView(
+      child: Padding(
+        padding: EdgeInsets.all(16.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 10),
-            Text("Please wait while the data is being loaded", style: TextStyle(fontSize: 16)),
+            MonitorDropdown(
+              monitors: monitorData.keys.toList(growable: false),
+              selectedMonitor: selectedMonitor,
+              onMonitorSelected: updateData,
+            ),
+            const SizedBox(height: 25),
+            if (selectedMonitor != null) ...[
+              Center(
+                child: ElevatedButton(
+                  onPressed: () => setState(() => readingsVisible = !readingsVisible),
+                  child: Text(readingsVisible ? 'Hide Monitor Data' : 'View Monitor Data'),
+                ),
+              ),
+              if (readingsVisible) ...[
+                MonitorDataTable(monitorData: monitorData[selectedMonitor]!),
+              ],
+              const SizedBox(height: 25),
+              IArchDisplay(iArchValue: iArchValue),
+              const SizedBox(height: 25),
+              RemediationTable(remedy: remedy)
+            ],
           ],
         ),
-      ) : SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              MonitorDropdown(
-                monitors: monitorData.keys.toList(growable: false),
-                selectedMonitor: selectedMonitor,
-                onMonitorSelected: updateData,
-              ),
-              const SizedBox(height: 25),
-              if (selectedMonitor != null) ...[
-                Center(
-                  child: ElevatedButton(
-                    onPressed: () => setState(() => readingsVisible = !readingsVisible),
-                    child: Text(readingsVisible ? 'Hide Monitor Data' : 'View Monitor Data'),
-                  ),
-                ),
-                if (readingsVisible) ...[
-                    MonitorDataTable(monitorData: monitorData[selectedMonitor]!),
-                  ],
-                  const SizedBox(height: 25),
-                  IArchDisplay(iArchValue: iArchValue),
-                  const SizedBox(height: 25),
-                  RemediationTable(remedy: remedy)
-                ],
-              ],
-            ),
-          ),
-        ),
+      ),
     );
   }
 }
-
 class AppTitle extends StatelessWidget {
   const AppTitle({super.key});
 

@@ -22,14 +22,13 @@ Future<Map<String, Map<String, num>>> getCurrentMonitorDataFromAllLocations(Stri
     final response = await get(Uri.parse(uri));
 
     if (response.statusCode == HttpStatus.ok) {
-      Compute computeData = Compute(response.body, locationIds);
-      return await compute(getProcessedCurrentMonitorData, computeData);
+      return await compute(getProcessedCurrentMonitorData, Compute(response.body, locationIds));
     } else {
-      throw Exception('Failed to load data');
+      throw HttpException("Failed to load data: ${response.statusCode}");
     }
   } catch(error) {
     print('Error fetching data: $error');
-    return <String, Map<String, num>> {};
+    return {};
   }
 }
 
@@ -40,9 +39,10 @@ Map<String, Map<String, num>> getProcessedCurrentMonitorData(Compute data) {
 
   for (Map<String, dynamic> monitor in monitors) {
     int locationId = monitor["locationId"];
+    String locationName = monitor["locationName"];
     
     if (data.locationIds.containsKey(locationId)) {
-      monitorData[monitor["locationName"]] = {
+      monitorData[locationName] = {
         "PM2.5": monitor["pm02"] ?? 0,
         "PM10": monitor["pm10"] ?? 0,
         "TVOC": monitor["tvocIndex"] ?? 0,
@@ -53,7 +53,7 @@ Map<String, Map<String, num>> getProcessedCurrentMonitorData(Compute data) {
         "plantower": convertPTSerialToNum(data.locationIds[locationId] ?? defaultPTSerial),
       };
 
-      applyCorrectionsToRawData(monitorData[monitor["locationName"]]!);
+      applyCorrectionsToRawData(monitorData[locationName]!);
     }
   }
 

@@ -19,33 +19,24 @@ class Project {
 }
 
 Future<(Project?, int)> getProjectById(String projectId) async {
+  if (projectId == "") {
+    return (null, HttpStatus.badRequest);
+  }
+
   try {
-    if (projectId == "") {
-      return (null, HttpStatus.badRequest);
-    }
-    
     final result = await DatabaseService().conn.execute("SELECT * FROM projects WHERE id = :id LIMIT 1", {"id": projectId});
 
     if (result.numOfRows == 0) {
       return (null, HttpStatus.notFound);
     }
 
-    final project = result.rows.first.assoc();
-    
-    return (Project.fromJson(project), HttpStatus.found);
-  } catch (e) {
+    return (Project.fromJson(result.rows.first.assoc()), HttpStatus.found);
+  } catch (_) {
     return (null, HttpStatus.internalServerError);
   }
 }
 
 Future<String> getTokenFromProjectId(String projectId) async {
-  final result = await getProjectById(projectId);
-
-  if (result.$2 != HttpStatus.found) {
-    return "";
-  }
-  
-  final Project project = result.$1 as Project;
-  
-  return project.token;
+  final (project, status) = await getProjectById(projectId);  
+  return project != null && status == HttpStatus.found ? project.token : "";
 }
