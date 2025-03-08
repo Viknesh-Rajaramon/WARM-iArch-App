@@ -8,7 +8,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
   await DatabaseService().initializeDB();
-  runApp(IArchApp());
+  runApp(const IArchApp());
 }
 
 class IArchApp extends StatelessWidget {
@@ -18,9 +18,9 @@ class IArchApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: AuthPage(),
+      initialRoute: '/auth',
       routes: {
-        "/auth": (_) => AuthPage()
+        '/auth': (_) => const AuthPage(),
       },
     );
   }

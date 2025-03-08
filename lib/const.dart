@@ -6,7 +6,7 @@ import "package:warm_app/class.dart";
 const List<Map<String, String>> displayNames = [
   {"reading": "PM2.5", "displayName": "PM\u2082\u002e\u2085", "unit": "µg/m³", "decimalPoint": "1"},
   {"reading": "PM10", "displayName": "PM\u2081\u2080", "unit": "µg/m³", "decimalPoint": "1"},
-  {"reading": "TVOC", "displayName": "TVOC", "unit": "ppm", "decimalPoint": "0"},
+  {"reading": "TVOC", "displayName": "TVOC", "unit": "ppm", "decimalPoint": "3"},
   {"reading": "CO2", "displayName": "CO\u2082", "unit": "ppm", "decimalPoint": "0"},
   {"reading": "RH", "displayName": "RH", "unit": "%", "decimalPoint": "0"},
   {"reading": "T", "displayName": "T", "unit": "\u2070F", "decimalPoint": "2"},

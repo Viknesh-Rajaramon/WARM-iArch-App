@@ -28,21 +28,19 @@ class User {
 }
 
 Future<(User?, int)> getUserByEmail(String email) async {
+  if (email == "") {
+    return (null, HttpStatus.badRequest);
+  }
+
   try {
-    if (email == "") {
-      return (null, HttpStatus.badRequest);
-    }
-    
     final result = await DatabaseService().conn.execute("SELECT * FROM users WHERE email = :email LIMIT 1", {"email": email});
 
     if (result.numOfRows == 0) {
       return (null, HttpStatus.notFound);
     }
 
-    final user = result.rows.first.assoc();
-    
-    return (User.fromJson(user), HttpStatus.found);
-  } catch (e) {
+    return (User.fromJson(result.rows.first.assoc()), HttpStatus.found);
+  } catch (_) {
     return (null, HttpStatus.internalServerError);
   }
 }

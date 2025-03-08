@@ -16,27 +16,38 @@ class _AuthPageState extends State<AuthPage> {
   final TextEditingController passwordController = TextEditingController();
 
   Future<void> signIn() async {
-    final result = await getUserByEmail(emailController.text.trim());
-    if (result.$2 == HttpStatus.found) {
-      final User user = result.$1 as User;
-      if (isPasswordAndHashEqual(passwordController.text.trim(), user.password, user.salt)) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => HomePage(projectId: user.projectId)),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Incorrect password. Please try again.")),
-      );
-      }
-    } else if (result.$2 == HttpStatus.notFound) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("User does not exist.")),
-      );
-    } else{
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Login failed. Please try again.")),
-      );
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
+
+    if (email == "" || password == "") {
+      displayErrorMessage("Please fill in all fields.");
+      return;
     }
+
+    final (user, status) = await getUserByEmail(email);
+    switch (status) {
+      case HttpStatus.found:
+        if (user != null && isPasswordAndHashEqual(passwordController.text.trim(), user.password, user.salt)) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => HomePage(projectId: user.projectId)),
+          );
+        } else {
+          displayErrorMessage("Incorrect password. Please try again.");
+        }
+        break;
+      case HttpStatus.notFound:
+        displayErrorMessage("User does not exist.");
+        break;
+      default:
+        displayErrorMessage("Login failed. Please try again.");
+        break;
+    }
+  }
+
+  void displayErrorMessage(String error) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(error)),
+    );
   }
 
   @override
@@ -48,16 +59,9 @@ class _AuthPageState extends State<AuthPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            TextField(
-              decoration: InputDecoration(labelText: "Email"),
-              controller: emailController,
-            ),
-            TextField(
-              decoration: InputDecoration(labelText: "Password"),
-              controller: passwordController,
-              obscureText: true,
-            ),
-            SizedBox(height: 20),
+            buildTextField(emailController, "Email"),
+            buildTextField(passwordController, "Password", obscureText: true),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: signIn,
               child: Text("Login"),
@@ -65,6 +69,14 @@ class _AuthPageState extends State<AuthPage> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget buildTextField(TextEditingController controller, String label, {bool obscureText = false}) {
+    return TextField(
+      controller: controller,
+      decoration: InputDecoration(labelText: label),
+      obscureText: obscureText,
     );
   }
 }

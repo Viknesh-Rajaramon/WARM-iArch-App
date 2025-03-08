@@ -24,25 +24,21 @@ class Monitor {
 }
 
 Future<(List<Monitor>, int)> getMonitorsByProjectId(String projectId) async {
-  try {
-    if (projectId == "") {
-      return (<Monitor>[], HttpStatus.badRequest);
-    }
-    
+  if (projectId == "") {
+    return (<Monitor>[], HttpStatus.badRequest);
+  }
+
+  try { 
     final result = await DatabaseService().conn.execute("SELECT * FROM monitors WHERE project_id = :projectId", {"projectId": projectId});
 
     if (result.numOfRows == 0) {
       return (<Monitor>[], HttpStatus.notFound);
     }
 
-    List<Monitor> monitors = [];
-    for (var row in result.rows) {
-      var monitor = row.assoc();
-      monitors.add(Monitor.fromJson(monitor));
-    }
+    List<Monitor> monitors = result.rows.map((row) => Monitor.fromJson(row.assoc())).toList();
     
     return (monitors, HttpStatus.found);
-  } catch (e) {
+  } catch (_) {
     return (<Monitor>[], HttpStatus.internalServerError);
   }
 }
@@ -52,16 +48,11 @@ Future<Map<int, String>> getLocationIdsAndPlantowerSerialByProjectId(String proj
     return {};
   }
     
-  final result = await getMonitorsByProjectId(projectId);
+  final (monitors, status) = await getMonitorsByProjectId(projectId);
 
-  if (result.$2 != HttpStatus.found) {
+  if (status != HttpStatus.found) {
     return {};
   }
-
-  Map<int, String> locationPT = {};
-  for (var monitor in result.$1) {
-    locationPT[monitor.locationId] = monitor.plantowerSerial;
-  }
     
-  return locationPT;
+  return {for (var monitor in monitors) monitor.locationId: monitor.plantowerSerial};
 }
