@@ -1,7 +1,9 @@
 import "dart:async";
 import "package:flutter/material.dart";
+import "package:flutter/services.dart";
 
 import "package:warm_app/calculation.dart";
+import "package:warm_app/db/database.dart";
 import "package:warm_app/util.dart";
 import "package:warm_app/class.dart";
 import "package:warm_app/api.dart";
@@ -22,8 +24,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late String projectId;
-  late String token;
+  String projectId = "";
+  String token = "";
   Map<int, String> locationIdsPlantower = {};
 
   bool isLoading = true;
@@ -39,7 +41,7 @@ class _HomePageState extends State<HomePage> {
     projectId = widget.projectId;
     
     getProjectDataFromDB();
-    getMonitorData();
+    getMonitorDataSafely();
 
     Timer.periodic(const Duration(minutes: 1), (timer) => getMonitorData());
   }
@@ -52,7 +54,17 @@ class _HomePageState extends State<HomePage> {
         token = results[0] as String;
         locationIdsPlantower = results[1] as Map<int, String>;
       });
+      DatabaseService().closeConnection();
     }
+  }
+
+  void getMonitorDataSafely() {
+    Future.delayed(Duration.zero, () async {
+      if (token != "") {
+        await getMonitorData();
+        Timer.periodic(const Duration(minutes: 1), (timer) => getMonitorData());
+      }
+    });
   }
 
   Future<void> getMonitorData() async {
@@ -148,6 +160,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
+
 class AppTitle extends StatelessWidget {
   const AppTitle({super.key});
 

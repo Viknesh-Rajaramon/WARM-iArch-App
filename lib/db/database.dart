@@ -23,4 +23,8 @@ class DatabaseService {
 
     await conn.connect();
   }
+
+  Future<void> closeConnection() async {
+    await conn.close();
+  }
 }
