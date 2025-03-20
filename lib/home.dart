@@ -3,19 +3,24 @@ import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 
 import "package:warm_app/calculation.dart";
-import "package:warm_app/db/database.dart";
-import "package:warm_app/util.dart";
 import "package:warm_app/class.dart";
 import "package:warm_app/api.dart";
+import "package:warm_app/app_title.dart";
+import "package:warm_app/monitor_dropdown.dart";
+import "package:warm_app/iarch_display.dart";
+import "package:warm_app/monitor_data.dart";
+import "package:warm_app/remediation.dart";
+
+import "package:warm_app/db/database.dart";
 import "package:warm_app/db/project.dart";
 import "package:warm_app/db/monitor.dart";
-
+import "package:warm_app/db/user.dart";
 
 class HomePage extends StatefulWidget {
-  final String projectId;
+  final User userData;
 
   const HomePage({
-    required this.projectId,
+    required this.userData,
     super.key,
   });
 
@@ -24,9 +29,10 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  String projectId = "";
+  late User userData;
   String token = "";
   Map<int, String> locationIdsPlantower = {};
+  String lastUpdated = DateTime.now().millisecondsSinceEpoch.toString();
 
   bool isLoading = true;
   Map<String, Map<String, num>> monitorData = {};
@@ -38,16 +44,14 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    projectId = widget.projectId;
+    userData = widget.userData;
     
     getProjectDataFromDB();
     getMonitorDataSafely();
-
-    Timer.periodic(const Duration(minutes: 1), (timer) => getMonitorData());
   }
 
   Future<void> getProjectDataFromDB() async {
-    final results = await Future.wait([getTokenFromProjectId(projectId), getLocationIdsAndPlantowerSerialByProjectId(projectId)]);
+    final results = await Future.wait([getTokenFromProjectId(userData.projectId), getLocationIdsAndPlantowerSerialByProjectId(userData.projectId)]);
 
     if (mounted) {
       setState(() {
@@ -59,11 +63,16 @@ class _HomePageState extends State<HomePage> {
   }
 
   void getMonitorDataSafely() {
-    Future.delayed(Duration.zero, () async {
+    Timer.periodic(const Duration(minutes: 1), (timer) => getMonitorData());
+
+    Future.doWhile(() async {
       if (token != "") {
         await getMonitorData();
-        Timer.periodic(const Duration(minutes: 1), (timer) => getMonitorData());
+        return false;
       }
+
+      await Future.delayed(Duration(milliseconds: 100));
+      return true;
     });
   }
 
@@ -95,6 +104,7 @@ class _HomePageState extends State<HomePage> {
     if (monitorValues != null) {
       setState(() {
         selectedMonitor = monitor;
+        lastUpdated = monitorValues["timestamp"].toString();
         iArchValue = calculateIArchValue(monitorValues);
         remedy = calculateRevitalizationIArchValues(monitorValues);
       });
@@ -104,9 +114,12 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: isLoading ? null : const AppTitle(),
+      appBar: isLoading ? null : AppBar(
+        title: AppTitle(name: userData.firstName, email: userData.email, timestamp: lastUpdated),
         automaticallyImplyLeading: false,
+        backgroundColor: Color.fromARGB(255, 28, 117, 188),
+        systemOverlayStyle: const SystemUiOverlayStyle(systemStatusBarContrastEnforced: true),
+        toolbarHeight: 120,
       ),
       body: isLoading ? loadingBar() : buildContent(),
     );
@@ -118,9 +131,14 @@ class _HomePageState extends State<HomePage> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          CircularProgressIndicator(),
-          SizedBox(height: 10),
-          Text("Please wait while the data is being loaded", style: TextStyle(fontSize: 16)),
+          CircularProgressIndicator(
+            color: Color.fromARGB(255, 28, 117, 188),
+          ),
+          SizedBox(height: 15),
+          Text(
+            "Please wait while the data is being loaded",
+            style: TextStyle(color: Color.fromARGB(255, 28, 117, 188), fontSize: 18, fontWeight: FontWeight.bold)
+          ),
         ],
       ),
     );
@@ -129,7 +147,7 @@ class _HomePageState extends State<HomePage> {
   Widget buildContent() {
     return SingleChildScrollView(
       child: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(30.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -143,11 +161,16 @@ class _HomePageState extends State<HomePage> {
               Center(
                 child: ElevatedButton(
                   onPressed: () => setState(() => readingsVisible = !readingsVisible),
-                  child: Text(readingsVisible ? 'Hide Monitor Data' : 'View Monitor Data'),
+                  style: ButtonStyle(backgroundColor: WidgetStateProperty.all<Color>(Color.fromARGB(255, 28, 117, 188))),
+                  child: Text(
+                    readingsVisible ? 'Hide Monitor Data' : 'View Monitor Data',
+                    style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
               if (readingsVisible) ...[
-                MonitorDataTable(monitorData: monitorData[selectedMonitor]!),
+                const SizedBox(height: 25),
+                MonitorData(monitorData: monitorData[selectedMonitor]!),
               ],
               const SizedBox(height: 25),
               IArchDisplay(iArchValue: iArchValue),
@@ -157,223 +180,6 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
-    );
-  }
-}
-
-class AppTitle extends StatelessWidget {
-  const AppTitle({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: RichText(
-        text: TextSpan(
-          style: const TextStyle(color: Colors.black, fontSize: 30, fontWeight: FontWeight.bold),
-          children: [
-            const TextSpan(text: "I"),
-            WidgetSpan(
-              child: Transform.translate(
-                offset: const Offset(0.0, 3.0),
-                child: const Text(
-                  "arch",
-                  style: TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.bold),
-                ),
-              ),
-            ),
-            const TextSpan(text: " Monitor"),
-          ],
-        ),
-      )
-    );
-  }
-}
-
-class MonitorDropdown extends StatelessWidget {
-  final List<String> monitors;
-  final String? selectedMonitor;
-  final Function(String) onMonitorSelected;
-
-  const MonitorDropdown({
-    required this.monitors,
-    required this.selectedMonitor,
-    required this.onMonitorSelected,
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return DropdownButton(
-      isExpanded: true,
-      hint: Text("Select a Monitor"),
-      value: selectedMonitor,
-      onChanged: (String? newValue) {
-        if (newValue != null) {
-          onMonitorSelected(newValue);
-        }
-      },
-      items: monitors.map((String key) {
-        return DropdownMenuItem<String>(
-          value: key,
-          child: Text(key),
-        );
-      }).toList(),
-    );
-  }
-}
-
-class IArchDisplay extends StatelessWidget {
-  final num iArchValue;
-
-  const IArchDisplay({
-    required this.iArchValue,
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: RichText(
-        text: TextSpan(
-          children: [
-            TextSpan(text: "Current I"),
-            WidgetSpan(
-              child: Transform.translate(
-                offset: const Offset(0.0, 3.0),
-                child: const Text(
-                  "arch",
-                  style: TextStyle(fontSize: 14, color: Colors.black, fontWeight: FontWeight.bold),
-                ),
-              ),
-            ),
-            TextSpan(
-              text: " Number = ${iArchValue.toStringAsFixed(0)}",
-            ),
-          ],
-          style: TextStyle(color: Colors.black, fontSize: 24, fontWeight: FontWeight.bold),
-        ),
-      )
-    );
-  }
-}
-
-class MonitorDataTable extends StatelessWidget {
-  final Map<String, num> monitorData;
-
-  const MonitorDataTable({
-    required this.monitorData,
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: DataTable(
-        columns: [
-          DataColumn(label: Text("")),
-          DataColumn(label: Text("")),
-        ],
-        rows: getDisplayData(monitorData).map((value) {
-          return DataRow(
-            cells: [
-              DataCell(
-                Text(
-                  "${value.displayName} (${value.unit})",
-                  style: TextStyle(fontSize: 16),
-                ),
-              ),
-              DataCell(
-                Text(
-                  value.reading.toStringAsFixed(value.decimalPoint),
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, backgroundColor: value.color),
-                ),
-              ),
-            ]
-          );
-        }).toList(),
-        columnSpacing: 40,
-        dataRowMinHeight: 15,
-        dataRowMaxHeight: 30,
-        headingRowHeight: 20,
-        dividerThickness: 0.01,
-      )
-    );
-  }
-}
-
-class RemediationTable extends StatelessWidget {
-  final List<Revitalization> remedy;
-
-  const RemediationTable({
-    required this.remedy,
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: DataTable(
-        columns: [
-          DataColumn(
-            label: Text(
-              "Option",
-              style: TextStyle(color: Colors.black, fontSize: 17, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
-            columnWidth: FixedColumnWidth(82.8),
-          ),
-          DataColumn(
-            label: Text(
-              "Remediation Condition",
-              style: TextStyle(color: Colors.black, fontSize: 17, fontWeight: FontWeight.bold),
-              softWrap: true,
-              textAlign: TextAlign.center,
-            )
-          ),
-          DataColumn(
-            label: Flexible(
-              child: RichText(
-                text: TextSpan(
-                  children: [
-                    TextSpan(text: "New I"),
-                    WidgetSpan(
-                      child: Transform.translate(
-                        offset: const Offset(0.0, 4.0),
-                        child: const Text(
-                          "arch",
-                          style: TextStyle(fontSize: 13, color: Colors.black, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ),
-                    TextSpan(text: " Number"),
-                  ],
-                  style: TextStyle(color: Colors.black, fontSize: 17, fontWeight: FontWeight.bold)
-                ),
-                softWrap: true,
-                textAlign: TextAlign.center,
-              )
-            ),
-            columnWidth: FixedColumnWidth(101),
-          ),
-        ],
-        rows: List.generate(
-          remedy.length,
-          (int index) => DataRow(
-            cells: [
-              DataCell(Center(child: Text("${index + 1}"))),
-              DataCell(
-                Text(
-                  remedy[index].condition,
-                  softWrap: true,
-                )
-              ),
-              DataCell(Center(child: Text(remedy[index].iArch.toStringAsFixed(0)))),
-            ],
-          ),
-        ),
-        columnSpacing: 15,
-        dataRowMaxHeight: 60,
-      )
     );
   }
 }

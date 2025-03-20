@@ -1,13 +1,10 @@
 import "package:flutter/material.dart";
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import "package:warm_app/auth.dart";
-import "package:warm_app/db/database.dart";
+import "package:warm_app/faq_page.dart";
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env");
-  await DatabaseService().initializeDB();
   runApp(const IArchApp());
 }
 
@@ -20,7 +17,8 @@ class IArchApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       initialRoute: '/auth',
       routes: {
-        '/auth': (_) => const AuthPage(),
+        "/auth": (_) => const AuthPage(),
+        '/faq': (_) => const FAQPage(),
       },
     );
   }

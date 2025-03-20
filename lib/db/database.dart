@@ -12,6 +12,8 @@ class DatabaseService {
   DatabaseService._internal();
 
   Future<void> initializeDB() async {
+    await dotenv.load(fileName: ".env");
+    
     conn = await MySQLConnection.createConnection(
       host: dotenv.env["DB_HOST"],
       port: int.parse(dotenv.env["DB_PORT"]!),

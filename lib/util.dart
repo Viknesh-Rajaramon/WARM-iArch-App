@@ -14,6 +14,7 @@ List<SensorDisplayUnit> getDisplayData(Map<String, num> data) {
       data[reading]!,
       int.parse(entry["decimalPoint"]!),
       getColor(reading, data[reading]!),
+      entry["info"]!,
     );
   }).toList();
 }
@@ -22,6 +23,11 @@ List<SensorDisplayUnit> getDisplayData(Map<String, num> data) {
 Color getColor(String name, num rawInput) => iValues.containsKey(name)
   ? getBreakpointValues(name, rawInput).color
   : Color.fromRGBO(255, 255, 255, 1.0);
+
+Color getIArchColor(num iArchValue) {
+    IArchScaleColorCode iValue = iArchColorCodes.entries.map((e) => e.value).firstWhere((iValue) => iValue.iLow <= iArchValue && iArchValue <= iValue.iHigh, orElse: () => IArchScaleColorCode(0, 0, Color.fromRGBO(255, 255, 255, 1.0)));
+    return iValue.color;
+  }
 
 BreakpointValues getBreakpointValues(String name, num rawInput) {
   Map<int, dynamic>? breakpointValuesMap = iValues[name];
@@ -49,4 +55,3 @@ void applyCorrectionsToRawData(Map<String, num> monitorData) {
 }
 
 num convertPTSerialToNum(String ptSerial) => int.parse(ptSerial.replaceAll("-", "").substring(0, 8));
-
