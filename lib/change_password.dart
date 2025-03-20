@@ -1,88 +1,88 @@
 import "dart:io";
 import "package:flutter/material.dart";
 
-import "package:warm_app/home.dart";
-import "package:warm_app/change_password.dart";
-import "package:warm_app/db/database.dart";
 import "package:warm_app/db/user.dart";
 
-class AuthPage extends StatefulWidget {
-  const AuthPage({super.key});
+class SetNewPasswordPage extends StatefulWidget {
+  final User user;
+
+  const SetNewPasswordPage({
+    required this.user,
+    super.key
+  });
 
   @override
-  _AuthPageState createState() => _AuthPageState();
+  _SetNewPasswordPageState createState() => _SetNewPasswordPageState();
 }
 
-class _AuthPageState extends State<AuthPage> {
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+class _SetNewPasswordPageState extends State<SetNewPasswordPage> {
+  late User user;
+  final TextEditingController newPasswordController = TextEditingController();
+  final TextEditingController confirmNewPasswordController = TextEditingController();
   bool obscurePassword = true;
-  OverlayEntry? errorMessageBox;
+  OverlayEntry? messageBox;
 
   @override
   void initState() {
     super.initState();
-    setUpDB();
+    user = widget.user;
   }
 
-  Future<void> setUpDB() async {
-    await DatabaseService().initializeDB();
-  }
+  Future<void> setNewPassword() async {
+    final newPassword = newPasswordController.text.trim();
+    final confirmNewPassword = confirmNewPasswordController.text.trim();
 
-  Future<void> signIn() async {
-    final email = emailController.text.trim();
-    final password = passwordController.text.trim();
-
-    if (email == "" && password == "") {
-      displayErrorMessage("Please enter your email address and password.");
+    if (newPassword == "") {
+      displayErrorMessage("Please enter your new password.");
       return;
-    } else if (email == "") {
-      displayErrorMessage("Please enter your email address.");
+    } else if (confirmNewPassword == "") {
+      displayErrorMessage("Please enter your new password again for confirmation.");
       return;
-    } else if (password == "") {
-      displayErrorMessage("Please enter your password.");
+    } else if (newPassword != confirmNewPassword) {
+      displayErrorMessage("The password does not match.");
       return;
     } else {}
 
-    final (user, status) = await getUserByEmail(email);
+    final status = await updateUserPassword(user.uuid, newPassword);
     switch (status) {
-      case HttpStatus.found:
-        if (user != null && isPasswordAndHashEqual(passwordController.text.trim(), user.password, user.salt)) {
-          if (user.isFirstLogin) {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (context) => SetNewPasswordPage(user: user)),
-            );
-          } else {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (context) => HomePage(userData: user)),
-            );
-          }
-        } else {
-          displayErrorMessage("Incorrect password. Please try again.");
-        }
-        break;
-      case HttpStatus.notFound:
-        displayErrorMessage("User does not exist.");
+      case HttpStatus.accepted:
+        displaySuccessMessage("Password updated successfully.");
         break;
       default:
-        displayErrorMessage("Login failed. Please try again.");
+        displayErrorMessage("Failed to update password.");
         break;
+    }
+
+    if (mounted) {
+      Navigator.of(context).pushReplacementNamed('/auth');
     }
   }
 
   void displayErrorMessage(String error) {
-    errorMessageBox?.remove();
-    errorMessageBox = createErrorMessageBox(error);
+    messageBox?.remove();
+    messageBox = createMessageBox(error, Colors.red.shade600);
 
-    Overlay.of(context).insert(errorMessageBox!);
+    Overlay.of(context).insert(messageBox!);
 
     Future.delayed(Duration(seconds: 3), () {
-      errorMessageBox?.remove();
-      errorMessageBox = null;
+      messageBox?.remove();
+      messageBox = null;
     });
   }
 
-  OverlayEntry createErrorMessageBox(String error) {
+  void displaySuccessMessage(String error) {
+    messageBox?.remove();
+    messageBox = createMessageBox(error, Colors.lightGreen.shade600);
+
+    Overlay.of(context).insert(messageBox!);
+
+    Future.delayed(Duration(seconds: 3), () {
+      messageBox?.remove();
+      messageBox = null;
+    });
+  }
+
+  OverlayEntry createMessageBox(String error, Color? backgroundColor) {
     return OverlayEntry(
       builder: (context) => Positioned(
         top: 50,
@@ -93,7 +93,7 @@ class _AuthPageState extends State<AuthPage> {
           child: Container(
             padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
             decoration: BoxDecoration(
-              color: Colors.red.shade600,
+              color: backgroundColor,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
@@ -110,19 +110,9 @@ class _AuthPageState extends State<AuthPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Login",
-              style: TextStyle(color: Color.fromARGB(255, 28, 117, 188), fontSize: 30, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              "Please login to continue using the app.",
-              style: TextStyle(color: Colors.black, fontSize: 18),
-            ),
-          ]
+        title: Text(
+          "Set up New Password",
+          style: TextStyle(color: Color.fromARGB(255, 28, 117, 188), fontSize: 30, fontWeight: FontWeight.bold),
         ),
         toolbarHeight: 100,
       ),
@@ -133,20 +123,20 @@ class _AuthPageState extends State<AuthPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "EMAIL ADDRESS",
+              "NEW PASSWORD",
               style: TextStyle(color: Color.fromARGB(255, 28, 117, 188), fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
-            buildTextField(emailController),
+            buildTextField(newPasswordController),
             const SizedBox(height: 30),
             Text(
-              "PASSWORD",
+              "CONFIRM NEW PASSWORD",
               style: TextStyle(color: Color.fromARGB(255, 28, 117, 188), fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
-            buildTextField(passwordController, obscureText: obscurePassword, displayEyeIcon: true),
+            buildTextField(confirmNewPasswordController, obscureText: obscurePassword, displayEyeIcon: true),
             const SizedBox(height: 40),
-            loginButton(),
+            updateButton(),
           ],
         ),
       ),
@@ -186,20 +176,20 @@ class _AuthPageState extends State<AuthPage> {
     );
   }
 
-  Widget loginButton() {
+  Widget updateButton() {
     return Center(
       child: SizedBox(
         width: 125,
         height: 50,
         child: TextButton.icon(
-          onPressed: signIn,
+          onPressed: setNewPassword,
           style: ElevatedButton.styleFrom(
             backgroundColor: Color.fromARGB(255, 28, 117, 188),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           ),
           icon: const Icon(Icons.login, color: Colors.white, size: 24),
           label: const Text(
-            "Login",
+            "Update",
             style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)
           ),
         ),

@@ -6,8 +6,9 @@ class SensorDisplayUnit {
   final int decimalPoint;
   final num reading;
   final Color color;
+  final String info;
 
-  const SensorDisplayUnit(this.displayName, this.unit, this.reading, this.decimalPoint, this.color);
+  const SensorDisplayUnit(this.displayName, this.unit, this.reading, this.decimalPoint, this.color, this.info);
 }
 
 class BreakpointValues {
@@ -29,8 +30,24 @@ class IValue {
 }
 
 class Revitalization {
+  final int option;
   final String condition;
   final num iArch;
 
-  const Revitalization(this.condition, this.iArch);
+  const Revitalization(this.option, this.condition, this.iArch);
+}
+
+class IArchScaleColorCode {
+  final num iLow;
+  final num iHigh;
+  final Color color;
+
+  const IArchScaleColorCode(this.iLow, this.iHigh, this.color);
+}
+
+class RemediatonSteps {
+  final List<String> steps;
+  final List<String> links;
+
+  const RemediatonSteps(this.steps, this.links);
 }

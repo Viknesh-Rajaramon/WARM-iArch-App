@@ -57,6 +57,6 @@ Map<String, num> calculateReducedParameterValues(Map<String, num> sensorReadings
 List<Revitalization> calculateRevitalizationIArchValues(Map<String, num> sensorReadings) => 
   remediationConditions.map((condition) {
     Map<String, num> newSensorReadings = calculateReducedParameterValues(sensorReadings, condition["condition"]!);
-    return Revitalization(condition["condition"]!, calculateIArchValue(newSensorReadings));
+    return Revitalization(int.parse(condition["option"]!), condition["condition"]!, calculateIArchValue(newSensorReadings));
   }
 ).toList();
