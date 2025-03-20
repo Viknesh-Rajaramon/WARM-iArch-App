@@ -70,6 +70,10 @@ class _AuthPageState extends State<AuthPage> {
     }
   }
 
+  Future<void> forgotPassword() async {
+    Navigator.of(context).pushReplacementNamed("/forgot_password");
+  }
+
   void displayErrorMessage(String error) {
     errorMessageBox?.remove();
     errorMessageBox = createErrorMessageBox(error);
@@ -147,6 +151,8 @@ class _AuthPageState extends State<AuthPage> {
             buildTextField(passwordController, obscureText: obscurePassword, displayEyeIcon: true),
             const SizedBox(height: 40),
             loginButton(),
+            const SizedBox(height: 5),
+            forgotPasswordButton(),
           ],
         ),
       ),
@@ -202,6 +208,18 @@ class _AuthPageState extends State<AuthPage> {
             "Login",
             style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget forgotPasswordButton() {
+    return Center(
+      child: TextButton(
+        onPressed: forgotPassword,
+        child: const Text(
+          "Forgot Password?",
+          style: TextStyle(color: Color.fromARGB(255, 28, 117, 188), fontSize: 18, fontWeight: FontWeight.bold)
         ),
       ),
     );
