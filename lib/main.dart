@@ -2,6 +2,7 @@ import "package:flutter/material.dart";
 
 import "package:warm_app/auth.dart";
 import "package:warm_app/faq_page.dart";
+import "package:warm_app/forgot_password.dart";
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,6 +20,7 @@ class IArchApp extends StatelessWidget {
       routes: {
         "/auth": (_) => const AuthPage(),
         "/faq": (_) => const FAQPage(),
+        "/forgot_password": (_) => const ForgotPasswordPage(),
       },
     );
   }
