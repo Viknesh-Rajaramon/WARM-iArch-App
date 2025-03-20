@@ -125,11 +125,11 @@ Widget numberedPoint(int number, String boldText, String normalText) {
 }
 
 (String, List<Widget>) faq1() {
-  String question = "What is a CR Box?";
+  String question = "What is a CR box?";
   List<Widget> answer = [
     Padding(padding: EdgeInsets.all(16.0),
       child: Text(
-        "A Corsi-Rosenthal Box (CR Box) is a do-it-yourself (DIY) air purifier which reduces airborne pollutants. It is made from common components like a box fan and MERV 13 filters, making it an affordable solution for improving indoor air quality.",
+        "A Corsi-Rosenthal box (CR box) is a do-it-yourself (DIY) air purifier which reduces airborne pollutants. It is made from common components like a box fan and MERV 13 air filters, making it an affordable solution for improving indoor air quality.",
         style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500),
       ),
     ),
@@ -138,7 +138,7 @@ Widget numberedPoint(int number, String boldText, String normalText) {
 }
 
 (String, List<Widget>) faq2() {
-  String question = "What does a CR Box collect?";
+  String question = "What does a CR box collect?";
   List<Widget> answer = [
     Padding(
       padding: EdgeInsets.all(16.0),
@@ -146,13 +146,13 @@ Widget numberedPoint(int number, String boldText, String normalText) {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "A CR Box collects particulate matter, i.e., microscopic solids or liquid droplets that are so small that they can be inhaled and cause serious health issues.",
+            "A CR box collects particulate matter, i.e., microscopic solids or liquid droplets that are so small that some of them can be inhaled and cause serious health issues.",
             style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: 20),
-          bulletPoint("Fine particulate matter (PM 2.5): ", "Small particles with diameters 2.5 µm and smaller.", true),
+          bulletPoint("Fine particulate matter (PM\u2082\u002e\u2085): ", "Small particles with diameters of 2.5 µm and smaller.", true),
           const SizedBox(height: 20),
-          bulletPoint("Large particulate matter (PM 10): ", "Large particles like dust with diameters 10 um and smaller.", true),
+          bulletPoint("Large particulate matter (PM\u2081\u2080): ", "Large particles with diameters of 10 µm and smaller.", true),
         ]
       )
     )
@@ -162,11 +162,11 @@ Widget numberedPoint(int number, String boldText, String normalText) {
 }
 
 (String, List<Widget>) faq3() {
-  String question = "How does a CR Box collect particles?";
+  String question = "How does a CR box collect particles?";
   List<Widget> answer = [
     Padding(padding: EdgeInsets.all(16.0),
       child: Text(
-        "The CR Box draws air through MERV 12 filters using a box fan. The filter captures particles, and the fan circulates the clean air back into the room.",
+        "The CR box draws air through the air filters (MERV 13) using a box fan. The filter captures particles, and the fan circulates the clean air back into the room.",
         style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500),
       ),
     ),
@@ -175,25 +175,25 @@ Widget numberedPoint(int number, String boldText, String normalText) {
 }
 
 (String, List<Widget>) faq4() {
-  String question = "How to build a CR Box?";
+  String question = "How to build a CR box?";
   List<Widget> answer = [
     Padding(
       padding: EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          bulletPoint("Materials Needed: ", "Four MERV 13 filters (20'x 20\"x 2\"), one box fan (20'), cardboard (from the bon packaging), duct tape, cardboard shroud for the fan (optional)", false),
+          bulletPoint("Materials Needed: ", "Four MERV 13 air filters (20' x 20\" x 2\"), one box fan (20'), cardboard (from the bon packaging), duct tape, cardboard shroud for the fan (optional)", false),
           const SizedBox(height: 20),
-          bulletPoint("Steps to build a CR Box:", "", false),
+          bulletPoint("Steps to build a CR box:", "", false),
           const SizedBox(height: 15),
           numberedPoint(1, "Prepare the Filters: ", "Ensure all filters have their airflow arrows pointing inward."),
           const SizedBox(height: 20),
-          numberedPoint(2, "Assemble the Box:", ""),
+          numberedPoint(2, "Assemble the box:", ""),
           bulletPoint("", "Connect the filters together in a cube shape using duct tape, ensuring the airflow arrows point inward.", true, isSubBulletPoint: true),
           const SizedBox(height: 10),
           bulletPoint("", "Use cardboard to create the bottom of the cube.", true, isSubBulletPoint: true),
           const SizedBox(height: 20),
-          numberedPoint(3, "Install the Fan:", ""),
+          numberedPoint(3, "Install the fan:", ""),
           bulletPoint("", "Place the box fan on top of the cube, ensuring it blows air outward", true, isSubBulletPoint: true),
           const SizedBox(height: 10),
           bulletPoint("", "Seal the edges around the fan with duct tape to prevent air leaks.", true, isSubBulletPoint: true),
@@ -201,9 +201,9 @@ Widget numberedPoint(int number, String boldText, String normalText) {
           numberedPoint(4, "Optional: Add a shroud", ""),
           bulletPoint("", "Cut a cardboard shroud to fit over the fan to improve efficiency by reducing backflow.", true, isSubBulletPoint: true),
           const SizedBox(height: 20),
-          numberedPoint(5, "Finally, ", "ensure all gaps are sealed with duct tape and place the CR Box in the room."),
+          numberedPoint(5, "Finally, ", "ensure all gaps are sealed with duct tape and place the CR box in the room."),
           const SizedBox(height: 30),
-          bulletPoint("Impact: ", "Installing a single CR box reduces approximately 40% PM 2.5 and PM 10 levels.", false),
+          bulletPoint("Impact: ", "Installing a single CR box reduces PM\u2082\u002e\u2085 and PM\u2081\u2080 levels by approximately 40%.", false),
         ]
       )
     )
@@ -220,15 +220,13 @@ Widget numberedPoint(int number, String boldText, String normalText) {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          numberedPoint(1, "", "Purchase activated carbon sheets designed for air purification."),
+          numberedPoint(1, "", "Obtain activated carbon sheets designed for air purification."),
           const SizedBox(height: 10),
-          numberedPoint(2, "", "Use a cardboard or plastic frame to hold the sheets in place. Ensure the frame allows for airflow through the carbon."),
+          numberedPoint(2, "", "Wrap the activated carbon sheet around the CR box. Use two Velcro fasteners to secure the activated carbon sheet in position."),
           const SizedBox(height: 10),
-          numberedPoint(3, "", "Place the frame near a fan or air purifier outlet to maximize airflow through the carbon. OR installing activated carbon sheets around the CR Box frame and using Velcro fastener to secure the sheets in position."),
-          const SizedBox(height: 10),
-          numberedPoint(4, "", "Regularly check VOC levels and replace the carbon sheets as needed."),
+          numberedPoint(3, "", "Check the VOC level and replace the carbon sheets as needed."),
           const SizedBox(height: 20),
-          bulletPoint("Impact: ", "Installing and using activated carbon filters can reduce TVOC levels by 80%.", false),
+          bulletPoint("Impact: ", "Installing and using activated carbon filters can reduce TVOC levels by approximately 80%.", false),
         ]
       )
     )
@@ -250,10 +248,8 @@ Widget numberedPoint(int number, String boldText, String normalText) {
           numberedPoint(2, "", "Use fans to circulate air and increase ventilation."),
           const SizedBox(height: 10),
           numberedPoint(3, "", "Ensure exhaust fans are installed and used during cooking and bathing to remove moisture and pollutants."),
-          const SizedBox(height: 10),
-          numberedPoint(4, "", "Natural ventilation option: if possible, plant trees or shrubs to increase natural airflow around your home."),
           const SizedBox(height: 20),
-          bulletPoint("Impact: ", "Increasing ventilation can decrease around 50% reduction in CO\u2082 levels.", false),
+          bulletPoint("Impact: ", "Increasing ventilation can reduce CO\u2082 levels by a varying amount depending on ventilation changes.", false),
         ]
       )
     )
@@ -274,7 +270,7 @@ Widget numberedPoint(int number, String boldText, String normalText) {
             style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: 20),
-          bulletPoint("Impact: ", "Installing and using a dehumidifier can reduce the relative humidity by 20%.", false),
+          bulletPoint("Impact: ", "Installing and using a dehumidifier can reduce the relative humidity by a varying amount depending on the dehumidification efficiency.", false),
         ]
       )
     )
