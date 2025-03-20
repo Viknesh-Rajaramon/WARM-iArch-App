@@ -15,10 +15,10 @@ class IArchApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: '/auth',
+      initialRoute: "/auth",
       routes: {
         "/auth": (_) => const AuthPage(),
-        '/faq': (_) => const FAQPage(),
+        "/faq": (_) => const FAQPage(),
       },
     );
   }

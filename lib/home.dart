@@ -163,7 +163,7 @@ class _HomePageState extends State<HomePage> {
                   onPressed: () => setState(() => readingsVisible = !readingsVisible),
                   style: ButtonStyle(backgroundColor: WidgetStateProperty.all<Color>(Color.fromARGB(255, 28, 117, 188))),
                   child: Text(
-                    readingsVisible ? 'Hide Monitor Data' : 'View Monitor Data',
+                    readingsVisible ? "Hide Monitor Data" : "View Monitor Data",
                     style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),

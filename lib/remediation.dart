@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import 'package:warm_app/class.dart';
-import 'package:warm_app/const.dart';
-import 'package:warm_app/util.dart';
-import 'package:warm_app/faq_page.dart';
+import "package:warm_app/class.dart";
+import "package:warm_app/const.dart";
+import "package:warm_app/util.dart";
+import "package:warm_app/faq_page.dart";
 
 class RemediationTable extends StatefulWidget {
   final List<Revitalization> remedy;

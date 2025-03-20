@@ -54,7 +54,7 @@ class _SetNewPasswordPageState extends State<SetNewPasswordPage> {
     }
 
     if (mounted) {
-      Navigator.of(context).pushReplacementNamed('/auth');
+      Navigator.of(context).pushReplacementNamed("/auth");
     }
   }
 

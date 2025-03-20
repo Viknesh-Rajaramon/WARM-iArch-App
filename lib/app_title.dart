@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import "package:flutter/material.dart";
+import "package:intl/intl.dart";
 
 class AppTitle extends StatelessWidget {
   final String name;
@@ -39,7 +39,7 @@ class AppTitle extends StatelessWidget {
                   style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  DateFormat('MMM d, hh:mm:ss a').format(DateTime.fromMillisecondsSinceEpoch(int.parse(timestamp))),
+                  DateFormat("MMM d, hh:mm:ss a").format(DateTime.fromMillisecondsSinceEpoch(int.parse(timestamp))),
                   style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.normal),
                 ),
               ],
@@ -92,7 +92,7 @@ class AppTitle extends StatelessWidget {
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
-                  Navigator.of(context).pushReplacementNamed('/auth');
+                  Navigator.of(context).pushReplacementNamed("/auth");
                 },
                 child: const Text(
                   "Yes",

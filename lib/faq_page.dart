@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
 class FAQPage extends StatelessWidget {
   const FAQPage({super.key});
@@ -8,7 +8,7 @@ class FAQPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'FAQ',
+          "FAQ",
           style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)
         ),
         backgroundColor: Color.fromARGB(255, 28, 117, 188),
