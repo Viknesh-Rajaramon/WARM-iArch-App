@@ -4,11 +4,13 @@ import "package:http/http.dart";
 
 import "package:warm_app/util.dart";
 import "package:warm_app/const.dart";
+import "package:warm_app/calculation.dart";
 
-const apiString = "https://api.airgradient.com/public/api/v1/locations/measures/current?token={token}";
+const apiCurrentString = "https://api.airgradient.com/public/api/v1/locations/measures/current?token={token}";
+const apiHistoricString = "https://api.airgradient.com/public/api/v1/locations/{locationId}/measures/raw?token={token}&from={from}&to={to}";
 
 Future<Map<String, Map<String, num>>> getCurrentMonitorDataFromAllLocations(String token, Map<int, String> locationIds) async {
-  String uri = apiString.replaceAll("{token}", token);
+  String uri = apiCurrentString.replaceAll("{token}", token);
 
   try {
     final response = await get(Uri.parse(uri));
@@ -44,10 +46,55 @@ Map<String, Map<String, num>> getProcessedCurrentMonitorData(String responseBody
           "pm003Count": monitor["pm003Count"] ?? 0,
           "plantower": convertPTSerialToNum(locationIds[locationId] ?? defaultPTSerial),
           "timestamp": DateTime.parse(monitor["timestamp"]!).millisecondsSinceEpoch,
+          "locationId": locationId,
         };
 
         applyCorrectionsToRawData(monitorData[locationName]!);
       }
+    } catch (e) {
+      print("Error processing monitor data: $e");
+    }
+  }
+  
+  return monitorData;
+}
+
+Future<List<num>> getHistoricMonitorDataByLocationId(String token, num locationId, num plantowerSerial) async {
+  String uri = apiHistoricString.replaceAll("{locationId}", locationId.toString()).replaceAll("{token}", token).replaceAll("{from}", "20250320T132916Z").replaceAll("{to}", "20250321T015916Z");
+
+  try {
+    final response = await get(Uri.parse(uri));
+
+    if (response.statusCode == HttpStatus.ok) {
+      return getProcessedHistoricMonitorData(response.body, plantowerSerial);
+    } else {
+      throw HttpException("Failed to load data: ${response.statusCode}");
+    }
+  } catch(error) {
+    print("Error fetching data: $error");
+    return [];
+  }
+}
+
+List<num> getProcessedHistoricMonitorData(String responseBody, num plantowerSerial) {
+  List<dynamic> monitors = json.decode(responseBody);
+  final monitorData = <num>[];
+
+  for (final monitor in monitors) {
+    try {
+      Map<String, num> data = {
+        "PM2.5": monitor["pm02"] ?? 0,
+        "PM10": monitor["pm10"] ?? 0,
+        "TVOC": monitor["tvoc"] ?? 0,
+        "CO2": monitor["rco2"] ?? 0,
+        "RH": monitor["rhum"] ?? 0,
+        "T": monitor["atmp"] ?? 0,
+        "pm003Count": monitor["pm003Count"] ?? 0,
+        "plantower": plantowerSerial,
+      };
+
+      applyCorrectionsToRawData(data);
+      monitorData.add(calculateIArchValue(data));
     } catch (e) {
       print("Error processing monitor data: $e");
     }

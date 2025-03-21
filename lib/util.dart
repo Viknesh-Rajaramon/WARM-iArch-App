@@ -1,3 +1,4 @@
+import "package:collection/collection.dart";
 import "package:flutter/rendering.dart";
 
 import "package:warm_app/class.dart";
@@ -55,3 +56,7 @@ void applyCorrectionsToRawData(Map<String, num> monitorData) {
 }
 
 num convertPTSerialToNum(String ptSerial) => int.parse(ptSerial.replaceAll("-", "").substring(0, 8));
+
+num getAverageIArchValue(List<num> iArchValues, int numReadings) {
+  return iArchValues.sublist(0, numReadings).average;
+}

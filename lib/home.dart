@@ -10,6 +10,7 @@ import "package:warm_app/monitor_dropdown.dart";
 import "package:warm_app/iarch_display.dart";
 import "package:warm_app/monitor_data.dart";
 import "package:warm_app/remediation.dart";
+import "package:warm_app/iarch_average_display.dart";
 
 import "package:warm_app/db/database.dart";
 import "package:warm_app/db/project.dart";
@@ -175,7 +176,10 @@ class _HomePageState extends State<HomePage> {
               const SizedBox(height: 25),
               IArchDisplay(iArchValue: iArchValue),
               const SizedBox(height: 25),
-              RemediationTable(remedy: remedy)
+              IArchAverageTable(locationId: monitorData[selectedMonitor]!["locationId"]!, token: token, plantowerSerial: monitorData[selectedMonitor]!["plantower"]!),
+              const SizedBox(height: 25),
+              RemediationTable(remedy: remedy),
+              const SizedBox(height: 25),
             ],
           ],
         ),
