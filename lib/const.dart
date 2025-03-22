@@ -166,3 +166,10 @@ const Map<num, Map<String, num>> scalingFactorsForCorrection = {
 };
 
 const String defaultPTSerial = "2023-103000000";
+
+const List<Map<String, String>> timeFrameForAverage = [
+  {"timeframe": "1-hour", "numReadings": "60"},
+  {"timeframe": "3-hour", "numReadings": "180"},
+  {"timeframe": "6-hour", "numReadings": "360"},
+  {"timeframe": "12-hour", "numReadings": "720"},
+];

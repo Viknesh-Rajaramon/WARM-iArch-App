@@ -10,6 +10,7 @@ import "package:warm_app/monitor_dropdown.dart";
 import "package:warm_app/iarch_display.dart";
 import "package:warm_app/monitor_data.dart";
 import "package:warm_app/remediation.dart";
+import "package:warm_app/iarch_average_display.dart";
 
 import "package:warm_app/db/database.dart";
 import "package:warm_app/db/project.dart";
@@ -39,6 +40,8 @@ class _HomePageState extends State<HomePage> {
   String? selectedMonitor;
   num iArchValue = 0;
   bool readingsVisible = false;
+  List<num> iArchValues = [];
+  bool averageVisible = false;
   List<Revitalization> remedy = [];
 
   @override
@@ -47,7 +50,7 @@ class _HomePageState extends State<HomePage> {
     userData = widget.userData;
     
     getProjectDataFromDB();
-    getMonitorDataSafely();
+    getCurrentMonitorDataSafely();
   }
 
   Future<void> getProjectDataFromDB() async {
@@ -62,12 +65,12 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void getMonitorDataSafely() {
-    Timer.periodic(const Duration(minutes: 1), (timer) => getMonitorData());
+  void getCurrentMonitorDataSafely() {
+    Timer.periodic(const Duration(minutes: 1), (timer) => getCurrentMonitorData());
 
     Future.doWhile(() async {
       if (token != "") {
-        await getMonitorData();
+        await getCurrentMonitorData();
         return false;
       }
 
@@ -76,7 +79,7 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  Future<void> getMonitorData() async {
+  Future<void> getCurrentMonitorData() async {
     if (token == "") {
       return;
     }
@@ -95,6 +98,32 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  void getHistoricMonitorDataSafely() {
+    Future.doWhile(() async {
+      if (token != "" && selectedMonitor != null) {
+        await getHistoricMonitorData();
+        return false;
+      }
+
+      await Future.delayed(Duration(milliseconds: 100));
+      return true;
+    });
+  }
+
+  Future<void> getHistoricMonitorData() async {
+    if (token == "" || selectedMonitor == null) {
+      return;
+    }
+
+    var data = await getHistoricMonitorDataByLocationId(token, monitorData[selectedMonitor]!["locationId"]!, monitorData[selectedMonitor]!["plantower"]!);
+
+    if (mounted) {
+      setState(() {
+        iArchValues = data;
+      });
+    }
+  }
+
   void updateData(String monitor) {
     if (isLoading) {
       return;
@@ -107,8 +136,10 @@ class _HomePageState extends State<HomePage> {
         lastUpdated = monitorValues["timestamp"].toString();
         iArchValue = calculateIArchValue(monitorValues);
         remedy = calculateRevitalizationIArchValues(monitorValues);
+        iArchValues = [];
       });
     }
+    getHistoricMonitorDataSafely();
   }
 
   @override
@@ -175,7 +206,23 @@ class _HomePageState extends State<HomePage> {
               const SizedBox(height: 25),
               IArchDisplay(iArchValue: iArchValue),
               const SizedBox(height: 25),
-              RemediationTable(remedy: remedy)
+              Center(
+                child: ElevatedButton(
+                  onPressed: () => setState(() => averageVisible = !averageVisible),
+                  style: ButtonStyle(backgroundColor: WidgetStateProperty.all<Color>(Color.fromARGB(255, 28, 117, 188))),
+                  child: Text(
+                    averageVisible ? "Hide iARCH Average" : "View iARCH Average",
+                    style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+              if (averageVisible) ...[
+                const SizedBox(height: 25),
+                IArchAverageTable(iArchValues: iArchValues),
+              ],
+              const SizedBox(height: 25),
+              RemediationTable(remedy: remedy),
+              const SizedBox(height: 25),
             ],
           ],
         ),
