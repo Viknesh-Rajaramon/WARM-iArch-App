@@ -2,53 +2,14 @@ import "package:flutter/material.dart";
 import "package:warm_app/const.dart";
 
 import "package:warm_app/util.dart";
-import "package:warm_app/api.dart";
 
-class IArchAverageTable extends StatefulWidget {
-  final num locationId;
-  final String token;
-  final num plantowerSerial;
+class IArchAverageTable extends StatelessWidget {
+  final List<num> iArchValues;
 
   const IArchAverageTable({
-    Key? key,
-    required this.locationId,
-    required this.token,
-    required this.plantowerSerial,
-  }) : super(key: key);
-
-  @override
-  _IArchAverageTableCellState createState() => _IArchAverageTableCellState();
-}
-
-class _IArchAverageTableCellState extends State<IArchAverageTable> {
-  late num locationId;
-  late String token;
-  late num plantowerSerial;
-  List<num> iArchValues = [];
-
-  @override
-  void initState() {
-    super.initState();
-    locationId = widget.locationId;
-    token = widget.token;
-    plantowerSerial = widget.plantowerSerial;
-
-    getMonitorData();
-  }
-
-  Future<void> getMonitorData() async {
-    if (token == "") {
-      return;
-    }
-
-    var data = await getHistoricMonitorDataByLocationId(token, locationId, plantowerSerial);
-
-    if (mounted) {
-      setState(() {
-        iArchValues = data;
-      });
-    }
-  }
+    required this.iArchValues,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -90,6 +51,11 @@ class _IArchAverageTableCellState extends State<IArchAverageTable> {
           ),
         ],
         rows: List.generate(timeFrameForAverage.length, (index) {
+          num averageIArchValue = 0;
+          if (iArchValues.isNotEmpty) {
+            averageIArchValue = getAverageIArchValue(iArchValues, int.parse(timeFrameForAverage[index]["numReadings"]!));
+          }
+          
           return DataRow(
             cells: [
               DataCell(
@@ -97,19 +63,22 @@ class _IArchAverageTableCellState extends State<IArchAverageTable> {
                   "${timeFrameForAverage[index]["timeframe"]!} average",
                   softWrap: true,
                   overflow: TextOverflow.visible,
-                  style: const TextStyle(fontSize: 14, color: Colors.black),
+                  style: const TextStyle(fontSize: 16, color: Colors.black),
                 ),
               ),
               DataCell(
                 Center(
-                  child: Container(
+                  child: iArchValues.isEmpty ? CircularProgressIndicator(
+                    color: Color.fromARGB(255, 28, 117, 188),
+                    constraints: BoxConstraints(minWidth: 20, maxWidth: 25, minHeight: 20, maxHeight: 20),
+                  ) : Container(
                     padding: const EdgeInsets.symmetric(vertical: 1.0, horizontal: 8.0),
                     decoration: BoxDecoration(
-                      color: getIArchColor(0),
+                      color: getIArchColor(averageIArchValue),
                     ),
                     child: Text(
-                      getAverageIArchValue(iArchValues, int.parse(timeFrameForAverage[index]["numReadings"]!)).toStringAsFixed(0),
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
+                      averageIArchValue < 0 ? "---" : averageIArchValue.toStringAsFixed(0),
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
                     ),
                   )
                 )

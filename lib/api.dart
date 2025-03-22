@@ -60,7 +60,9 @@ Map<String, Map<String, num>> getProcessedCurrentMonitorData(String responseBody
 }
 
 Future<List<num>> getHistoricMonitorDataByLocationId(String token, num locationId, num plantowerSerial) async {
-  String uri = apiHistoricString.replaceAll("{locationId}", locationId.toString()).replaceAll("{token}", token).replaceAll("{from}", "20250320T132916Z").replaceAll("{to}", "20250321T015916Z");
+  String uri = apiHistoricString.replaceAll("{locationId}", locationId.toString()).replaceAll("{token}", token);
+  var (from, to) = getfromAndToTimestamp();
+  uri = uri.replaceAll("{from}", from).replaceAll("{to}", to);
 
   try {
     final response = await get(Uri.parse(uri));

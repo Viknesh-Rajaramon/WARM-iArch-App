@@ -58,5 +58,22 @@ void applyCorrectionsToRawData(Map<String, num> monitorData) {
 num convertPTSerialToNum(String ptSerial) => int.parse(ptSerial.replaceAll("-", "").substring(0, 8));
 
 num getAverageIArchValue(List<num> iArchValues, int numReadings) {
-  return iArchValues.sublist(0, numReadings).average;
+  return iArchValues.length < numReadings ? -1 : iArchValues.sublist(0, numReadings).average;
+}
+
+String intAsTwoDigits(int value) => value.toString().padLeft(2, "0");
+
+String formatDateTime(DateTime datetime) {
+  String date = "${datetime.year}${intAsTwoDigits(datetime.month)}${intAsTwoDigits(datetime.day)}";
+  String time = "${intAsTwoDigits(datetime.hour)}${intAsTwoDigits(datetime.minute)}${intAsTwoDigits(datetime.second)}";
+  
+  return "${date}T${time}Z";
+}
+
+(String, String) getfromAndToTimestamp() {
+  DateTime toTime = DateTime.now().toUtc();
+  DateTime fromTime = toTime.subtract(Duration(hours: 12, minutes: 25));
+  
+  
+  return (formatDateTime(fromTime), formatDateTime(toTime));
 }
