@@ -19,7 +19,9 @@ class MonitorDropdown extends StatelessWidget {
         width: 250,
         decoration: BoxDecoration(
           color: Color.fromARGB(255, 28, 117, 188),
+          borderRadius: BorderRadius.circular(10),
         ),
+        padding: const EdgeInsets.symmetric(horizontal: 10.0),
         child: DropdownButtonHideUnderline(
           child: DropdownButton(
             padding: const EdgeInsets.symmetric(horizontal: 10.0),
@@ -29,7 +31,7 @@ class MonitorDropdown extends StatelessWidget {
               style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
             ),
             value: selectedMonitor,
-            icon: Icon(Icons.arrow_drop_down, color: Colors.white, size: 40),
+            icon: Icon(Icons.arrow_drop_down, color: Colors.white, size: 30),
             onChanged: (String? newValue) {
               if (newValue != null) {
                 onMonitorSelected(newValue);

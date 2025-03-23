@@ -18,7 +18,7 @@ class IArchDisplay extends StatelessWidget {
             TextSpan(text: "Current I"),
             WidgetSpan(
               child: Transform.translate(
-                offset: const Offset(0.0, 3.0),
+                offset: const Offset(0.0, 5.0),
                 child: const Text(
                   "arch",
                   style: TextStyle(fontSize: 14, color: Colors.black, fontWeight: FontWeight.bold),
@@ -33,6 +33,7 @@ class IArchDisplay extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 6.0),
                 decoration: BoxDecoration(
                   color: getIArchColor(iArchValue),
+                  borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
                   iArchValue.toStringAsFixed(0),

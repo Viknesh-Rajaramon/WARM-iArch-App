@@ -25,14 +25,14 @@ class IArchAverageTable extends StatelessWidget {
             ),
           ),
           DataColumn(
-            label: Flexible(
+            label: Expanded(
               child: RichText(
                 text: TextSpan(
                   children: [
                     TextSpan(text: "I"),
                     WidgetSpan(
                       child: Transform.translate(
-                        offset: const Offset(0.0, 4.0),
+                        offset: const Offset(0.0, 5.0),
                         child: const Text(
                           "arch",
                           style: TextStyle(fontSize: 13, color: Colors.black, fontWeight: FontWeight.bold),
@@ -51,10 +51,7 @@ class IArchAverageTable extends StatelessWidget {
           ),
         ],
         rows: List.generate(timeFrameForAverage.length, (index) {
-          num averageIArchValue = 0;
-          if (iArchValues.isNotEmpty) {
-            averageIArchValue = getAverageIArchValue(iArchValues, int.parse(timeFrameForAverage[index]["numReadings"]!));
-          }
+          num averageIArchValue = getAverageIArchValue(iArchValues, int.parse(timeFrameForAverage[index]["numReadings"]!));
           
           return DataRow(
             cells: [

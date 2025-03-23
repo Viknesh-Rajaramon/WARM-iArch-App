@@ -23,17 +23,19 @@ Future<(Project?, int)> getProjectById(String projectId) async {
     return (null, HttpStatus.badRequest);
   }
 
-  try {
-    final result = await DatabaseService().conn.execute("SELECT * FROM projects WHERE id = :id LIMIT 1", {"id": projectId});
+  return await Future(() async {
+    try {
+      final result = await DatabaseService().conn.execute("SELECT * FROM projects WHERE id = :id LIMIT 1", {"id": projectId});
 
-    if (result.numOfRows == 0) {
-      return (null, HttpStatus.notFound);
+      if (result.numOfRows == 0) {
+        return (null, HttpStatus.notFound);
+      }
+
+      return (Project.fromJson(result.rows.first.assoc()), HttpStatus.found);
+    } catch (_) {
+      return (null, HttpStatus.internalServerError);
     }
-
-    return (Project.fromJson(result.rows.first.assoc()), HttpStatus.found);
-  } catch (_) {
-    return (null, HttpStatus.internalServerError);
-  }
+  });
 }
 
 Future<String> getTokenFromProjectId(String projectId) async {

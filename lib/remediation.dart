@@ -40,14 +40,14 @@ class _RemediationTableCellState extends State<RemediationTable> {
             ),
           ),
           DataColumn(
-            label: Flexible(
+            label: Expanded(
               child: RichText(
                 text: TextSpan(
                   children: [
                     TextSpan(text: "New I"),
                     WidgetSpan(
                       child: Transform.translate(
-                        offset: const Offset(0.0, 4.0),
+                        offset: const Offset(0.0, 5.0),
                         child: const Text(
                           "arch",
                           style: TextStyle(fontSize: 13, color: Colors.black, fontWeight: FontWeight.bold),

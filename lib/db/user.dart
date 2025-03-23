@@ -34,17 +34,19 @@ Future<(User?, int)> getUserByEmail(String email) async {
     return (null, HttpStatus.badRequest);
   }
 
-  try {
-    final result = await DatabaseService().conn.execute("SELECT * FROM users WHERE email = :email LIMIT 1", {"email": email});
+  return await Future(() async {
+    try {
+      final result = await DatabaseService().conn.execute("SELECT * FROM users WHERE email = :email LIMIT 1", {"email": email});
 
-    if (result.numOfRows == 0) {
-      return (null, HttpStatus.notFound);
+      if (result.numOfRows == 0) {
+        return (null, HttpStatus.notFound);
+      }
+
+      return (User.fromJson(result.rows.first.assoc()), HttpStatus.found);
+    } catch (_) {
+      return (null, HttpStatus.internalServerError);
     }
-
-    return (User.fromJson(result.rows.first.assoc()), HttpStatus.found);
-  } catch (_) {
-    return (null, HttpStatus.internalServerError);
-  }
+  });
 }
 
 bool convertStringToBool(String value) {
@@ -65,18 +67,20 @@ Future<int> updateUserPassword(String uuid, String newPassword) async {
     return HttpStatus.badRequest;
   }
 
-  String salt = DBCrypt().gensaltWithRounds(14);
-  String hashedPassword = DBCrypt().hashpw(newPassword, salt).substring(salt.length);
+  return await Future(() async {
+    String salt = DBCrypt().gensaltWithRounds(14);
+    String hashedPassword = DBCrypt().hashpw(newPassword, salt).substring(salt.length);
 
-  try {
-    final result = await DatabaseService().conn.execute("UPDATE users SET password = :hashedPassword, salt = :salt, is_first_login = FALSE WHERE uuid = :uuid", {"hashedPassword": hashedPassword, "salt": salt, "uuid": uuid});
+    try {
+      final result = await DatabaseService().conn.execute("UPDATE users SET password = :hashedPassword, salt = :salt, is_first_login = FALSE WHERE uuid = :uuid", {"hashedPassword": hashedPassword, "salt": salt, "uuid": uuid});
 
-    if (result.affectedRows == BigInt.zero) {
-      return HttpStatus.noContent;
+      if (result.affectedRows == BigInt.zero) {
+        return HttpStatus.noContent;
+      }
+
+      return HttpStatus.accepted;
+    } catch (_) {
+      return HttpStatus.internalServerError;
     }
-
-    return HttpStatus.accepted;
-  } catch (_) {
-    return HttpStatus.internalServerError;
-  }
+  });
 }

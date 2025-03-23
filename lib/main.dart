@@ -1,10 +1,8 @@
 import "package:flutter/material.dart";
 
-import "package:warm_app/auth.dart";
-import "package:warm_app/faq_page.dart";
-import "package:warm_app/forgot_password.dart";
+import "package:warm_app/routes.dart";
 
-void main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const IArchApp());
 }
@@ -16,12 +14,8 @@ class IArchApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: "/auth",
-      routes: {
-        "/auth": (_) => const AuthPage(),
-        "/faq": (_) => const FAQPage(),
-        "/forgot_password": (_) => const ForgotPasswordPage(),
-      },
+      initialRoute: AppRoutes.auth,
+      onGenerateRoute: AppRoutes.generateRoute,
     );
   }
 }

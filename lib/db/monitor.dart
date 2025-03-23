@@ -28,19 +28,21 @@ Future<(List<Monitor>, int)> getMonitorsByProjectId(String projectId) async {
     return (<Monitor>[], HttpStatus.badRequest);
   }
 
-  try { 
-    final result = await DatabaseService().conn.execute("SELECT * FROM monitors WHERE project_id = :projectId", {"projectId": projectId});
+  return await Future(() async {
+    try { 
+      final result = await DatabaseService().conn.execute("SELECT * FROM monitors WHERE project_id = :projectId", {"projectId": projectId});
 
-    if (result.numOfRows == 0) {
-      return (<Monitor>[], HttpStatus.notFound);
+      if (result.numOfRows == 0) {
+        return (<Monitor>[], HttpStatus.notFound);
+      }
+
+      List<Monitor> monitors = result.rows.map((row) => Monitor.fromJson(row.assoc())).toList();
+      
+      return (monitors, HttpStatus.found);
+    } catch (_) {
+      return (<Monitor>[], HttpStatus.internalServerError);
     }
-
-    List<Monitor> monitors = result.rows.map((row) => Monitor.fromJson(row.assoc())).toList();
-    
-    return (monitors, HttpStatus.found);
-  } catch (_) {
-    return (<Monitor>[], HttpStatus.internalServerError);
-  }
+  });
 }
 
 Future<Map<int, String>> getLocationIdsAndPlantowerSerialByProjectId(String projectId) async {
