@@ -26,6 +26,7 @@ class _AuthPageState extends State<AuthPage> {
   }
 
   Future<void> setUpDB() async {
+    await Future.delayed(Duration(milliseconds: 100));
     await DatabaseService().initializeDB();
   }
 
@@ -114,6 +115,7 @@ class _AuthPageState extends State<AuthPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

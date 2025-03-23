@@ -25,16 +25,18 @@ class MonitorData extends StatelessWidget {
                 SensorDataCell(displayName: value.displayName, unit: value.unit, infoMessage: value.info),
               ),
               DataCell(
-                Container(
-                  padding: const EdgeInsets.symmetric(vertical: 1.0, horizontal: 6.0),
-                  decoration: BoxDecoration(
-                    color: value.color,
+                Center(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 1.0, horizontal: 6.0),
+                    decoration: BoxDecoration(
+                      color: value.color,
+                    ),
+                    child: Text(
+                      value.reading.toStringAsFixed(value.decimalPoint),
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
                   ),
-                  child: Text(
-                    value.reading.toStringAsFixed(value.decimalPoint),
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                )
+                ),
               ),
             ]
           );
@@ -75,12 +77,15 @@ class _SensorDataCellState extends State<SensorDataCell> {
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        Text(
-          "${widget.displayName} (${widget.unit})",
-          style: const TextStyle(fontSize: 16),
+        Expanded(
+          child: Text(
+            "${widget.displayName} (${widget.unit})",
+            style: const TextStyle(fontSize: 16),
+          ),
         ),
-        const SizedBox(width: 5),
+        const SizedBox(width: 10),
         GestureDetector(
           onTap: () {
             showPopupMessage(context);

@@ -5,25 +5,28 @@ class DatabaseService {
   static final DatabaseService _instance = DatabaseService._internal();
   late MySQLConnection conn;
 
-  factory DatabaseService() {
-    return _instance;
-  }
+  factory DatabaseService() => _instance;
 
   DatabaseService._internal();
 
   Future<void> initializeDB() async {
-    await dotenv.load(fileName: ".env");
-    
-    conn = await MySQLConnection.createConnection(
-      host: dotenv.env["DB_HOST"],
-      port: int.parse(dotenv.env["DB_PORT"]!),
-      userName: dotenv.env["DB_USER"]!,
-      password: dotenv.env["DB_PASSWORD"]!,
-      databaseName: dotenv.env["DB_NAME"]!,
-      collation: dotenv.env["DB_COLLATION"]!,
-    );
+    try {
+      await dotenv.load(fileName: ".env");
 
-    await conn.connect();
+      conn = await MySQLConnection.createConnection(
+        host: dotenv.env["DB_HOST"] ?? "localhost",
+        port: int.tryParse(dotenv.env["DB_PORT"] ?? "3306") ?? 3306,
+        userName: dotenv.env["DB_USER"] ?? "",
+        password: dotenv.env["DB_PASSWORD"] ?? "",
+        databaseName: dotenv.env["DB_NAME"],
+        collation: dotenv.env["DB_COLLATION"] ?? "utf8mb4_general_ci",
+      );
+
+      await conn.connect();
+      print("Database connected successfully.");
+    } catch (e) {
+      print("Database connection failed: $e");
+    }
   }
 
   Future<void> closeConnection() async {

@@ -27,8 +27,14 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       displayErrorMessage("Please enter your email address.");
       return;
     }
+
+    displayLoadingMessage("Checking email...");
     
     final (user, status) = await getUserByEmail(email);
+    if (!mounted) {
+      return;
+    }
+
     switch (status) {
       case HttpStatus.found:
         if (user != null) {
@@ -49,14 +55,25 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   }
 
   void displayErrorMessage(String error) {
+    displayMessage(error, Colors.red.shade600);
+  }
+
+  void displayLoadingMessage(String message) {
+    displayMessage(message, Colors.blue.shade600);
+  }
+
+  void displayMessage(String message, Color backgroundColor) {
     messageBox?.remove();
-    messageBox = createMessageBox(error, Colors.red.shade600);
+    messageBox = createMessageBox(message, backgroundColor);
 
     Overlay.of(context).insert(messageBox!);
 
     Future.delayed(Duration(seconds: 3), () {
-      messageBox?.remove();
-      messageBox = null;
+      if (messageBox != null) {
+        messageBox?.remove();
+        messageBox = null;
+      }
+      
     });
   }
 
@@ -123,9 +140,13 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       ),
       child: TextFormField(
         controller: controller,
+        keyboardType: TextInputType.emailAddress,
+        textInputAction: TextInputAction.done,
         decoration: InputDecoration(
           border: InputBorder.none,
+          hintText: "Enter your email",
         ),
+        autofocus: true,
       ),
     );
   }

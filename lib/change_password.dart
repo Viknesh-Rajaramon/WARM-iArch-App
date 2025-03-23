@@ -2,6 +2,7 @@ import "dart:io";
 import "package:flutter/material.dart";
 
 import "package:warm_app/db/user.dart";
+import "package:warm_app/routes.dart";
 
 class SetNewPasswordPage extends StatefulWidget {
   final User user;
@@ -44,41 +45,38 @@ class _SetNewPasswordPageState extends State<SetNewPasswordPage> {
     } else {}
 
     final status = await updateUserPassword(user.uuid, newPassword);
-    switch (status) {
-      case HttpStatus.accepted:
-        displaySuccessMessage("Password updated successfully.");
-        break;
-      default:
-        displayErrorMessage("Failed to update password.");
-        break;
-    }
 
-    if (mounted) {
-      Navigator.of(context).pushReplacementNamed("/auth");
-    }
+    if (status == HttpStatus.accepted) {
+      displaySuccessMessage("Password updated successfully.");
+
+      if (mounted) {
+        Navigator.of(context).pushReplacementNamed(AppRoutes.auth);
+      }
+    } else {
+      displayErrorMessage("Failed to update password. Please try again.");
+    }    
   }
 
   void displayErrorMessage(String error) {
-    messageBox?.remove();
-    messageBox = createMessageBox(error, Colors.red.shade600);
-
-    Overlay.of(context).insert(messageBox!);
-
-    Future.delayed(Duration(seconds: 3), () {
-      messageBox?.remove();
-      messageBox = null;
-    });
+    displayMessage(error, Colors.red.shade600);
   }
 
-  void displaySuccessMessage(String error) {
+  void displaySuccessMessage(String message) {
+    displayMessage(message, Colors.lightGreen.shade600);
+  }
+
+  void displayMessage(String message, Color backgroundColor) {
     messageBox?.remove();
-    messageBox = createMessageBox(error, Colors.lightGreen.shade600);
+    messageBox = createMessageBox(message, backgroundColor);
 
     Overlay.of(context).insert(messageBox!);
 
     Future.delayed(Duration(seconds: 3), () {
-      messageBox?.remove();
-      messageBox = null;
+      if (messageBox != null) {
+        messageBox?.remove();
+        messageBox = null;
+      }
+      
     });
   }
 

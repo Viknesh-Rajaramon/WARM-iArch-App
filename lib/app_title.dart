@@ -1,5 +1,6 @@
 import "package:flutter/material.dart";
 import "package:intl/intl.dart";
+import "package:warm_app/routes.dart";
 
 class AppTitle extends StatelessWidget {
   final String name;
@@ -92,7 +93,7 @@ class AppTitle extends StatelessWidget {
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
-                  Navigator.of(context).pushReplacementNamed("/auth");
+                  Navigator.of(context).pushReplacementNamed(AppRoutes.auth);
                 },
                 child: const Text(
                   "Yes",

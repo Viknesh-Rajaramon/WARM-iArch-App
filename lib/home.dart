@@ -210,9 +210,36 @@ class _HomePageState extends State<HomePage> {
                 child: ElevatedButton(
                   onPressed: () => setState(() => averageVisible = !averageVisible),
                   style: ButtonStyle(backgroundColor: WidgetStateProperty.all<Color>(Color.fromARGB(255, 28, 117, 188))),
-                  child: Text(
-                    averageVisible ? "Hide iARCH Average" : "View iARCH Average",
-                    style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                  child: Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: averageVisible ? "Hide" : "View",
+                          style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                        TextSpan(
+                          text: " I",
+                          style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                        WidgetSpan(
+                          child: Transform.translate(
+                            offset: Offset(0.0, 5.0),
+                            child: Text(
+                              "arch",
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                        TextSpan(
+                          text: " Average",
+                          style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
