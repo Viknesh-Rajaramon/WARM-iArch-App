@@ -48,15 +48,13 @@ class MonitorDropdown extends StatelessWidget {
                 );
               }).toList();
             },
-            items: monitors.map((String key) {
+            items: List.generate(monitors.length, (index) {
+              String key = monitors[index];
               return DropdownMenuItem<String>(
                 value: key,
-                child: Text(
-                  key,
-                  style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
-                ),
+                child: Text(key),
               );
-            }).toList(),
+            }),
           )
         )
       )
