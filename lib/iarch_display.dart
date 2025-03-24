@@ -14,8 +14,9 @@ class IArchDisplay extends StatelessWidget {
     return Center(
       child: RichText(
         text: TextSpan(
+          style: const TextStyle(color: Colors.black, fontSize: 24, fontWeight: FontWeight.bold),
           children: [
-            TextSpan(text: "Current I"),
+            const TextSpan(text: "Current I"),
             WidgetSpan(
               child: Transform.translate(
                 offset: const Offset(0.0, 5.0),
@@ -25,9 +26,7 @@ class IArchDisplay extends StatelessWidget {
                 ),
               ),
             ),
-            TextSpan(
-              text: " Number = ",
-            ),
+            const TextSpan(text: " Number = "),
             WidgetSpan(
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6.0),
@@ -42,7 +41,6 @@ class IArchDisplay extends StatelessWidget {
               ),
             ),
           ],
-          style: TextStyle(color: Colors.black, fontSize: 24, fontWeight: FontWeight.bold),
         ),
       )
     );

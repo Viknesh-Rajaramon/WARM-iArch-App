@@ -18,7 +18,7 @@ class MonitorDropdown extends StatelessWidget {
       child: Container(
         width: 250,
         decoration: BoxDecoration(
-          color: Color.fromARGB(255, 28, 117, 188),
+          color: const Color.fromARGB(255, 28, 117, 188),
           borderRadius: BorderRadius.circular(10),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 10.0),
@@ -26,12 +26,12 @@ class MonitorDropdown extends StatelessWidget {
           child: DropdownButton(
             padding: const EdgeInsets.symmetric(horizontal: 10.0),
             isExpanded: true,
-            hint: Text(
+            hint: const Text(
               "Select a Monitor",
               style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
             ),
             value: selectedMonitor,
-            icon: Icon(Icons.arrow_drop_down, color: Colors.white, size: 30),
+            icon: const Icon(Icons.arrow_drop_down, color: Colors.white, size: 30),
             onChanged: (String? newValue) {
               if (newValue != null) {
                 onMonitorSelected(newValue);
@@ -43,7 +43,7 @@ class MonitorDropdown extends StatelessWidget {
                   alignment: Alignment.centerLeft,
                   child: Text(
                     key,
-                    style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
+                    style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 );
               }).toList();
@@ -53,7 +53,7 @@ class MonitorDropdown extends StatelessWidget {
                 value: key,
                 child: Text(
                   key,
-                  style: TextStyle(color: Colors.black, fontSize: 15, fontWeight: FontWeight.bold),
+                  style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               );
             }).toList(),

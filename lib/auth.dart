@@ -5,6 +5,7 @@ import "package:warm_app/home.dart";
 import "package:warm_app/change_password.dart";
 import "package:warm_app/db/database.dart";
 import "package:warm_app/db/user.dart";
+import "package:warm_app/routes.dart";
 
 class AuthPage extends StatefulWidget {
   const AuthPage({super.key});
@@ -26,7 +27,6 @@ class _AuthPageState extends State<AuthPage> {
   }
 
   Future<void> setUpDB() async {
-    await Future.delayed(Duration(milliseconds: 100));
     await DatabaseService().initializeDB();
   }
 
@@ -34,50 +34,51 @@ class _AuthPageState extends State<AuthPage> {
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
 
-    if (email == "" && password == "") {
+    if (email.isEmpty || password.isEmpty) {
       displayErrorMessage("Please enter your email address and password.");
       return;
-    } else if (email == "") {
-      displayErrorMessage("Please enter your email address.");
-      return;
-    } else if (password == "") {
-      displayErrorMessage("Please enter your password.");
-      return;
-    } else {}
+    }
+
+    showLoadingDialog();
 
     final (user, status) = await getUserByEmail(email);
-    switch (status) {
-      case HttpStatus.found:
-        if (user != null && isPasswordAndHashEqual(passwordController.text.trim(), user.password, user.salt)) {
-          if (user.isFirstLogin) {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (context) => SetNewPasswordPage(user: user)),
-            );
-          } else {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (context) => HomePage(userData: user)),
-            );
-          }
-        } else {
-          displayErrorMessage("Incorrect password. Please try again.");
-        }
-        break;
-      case HttpStatus.notFound:
-        displayErrorMessage("User does not exist.");
-        break;
-      default:
-        displayErrorMessage("Login failed. Please try again.");
-        break;
+
+    Navigator.of(context).pop();
+
+    if (status == HttpStatus.found && user != null) {
+      if (isPasswordAndHashEqual(password, user.password, user.salt)) {
+        final nextPage = user.isFirstLogin ? SetNewPasswordPage(user: user) : HomePage(userData: user);
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => nextPage),
+        );
+      } else {
+        displayErrorMessage("Incorrect password. Please try again.");
+      }
+    } else {
+      displayErrorMessage("User does not exist.");
     }
   }
 
-  Future<void> forgotPassword() async {
-    Navigator.of(context).pushReplacementNamed("/forgot_password");
+  void showLoadingDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const AlertDialog(
+        content: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(width: 20),
+            Text("Signing in..."),
+          ],
+        ),
+      ),
+    );
   }
 
   void displayErrorMessage(String error) {
     errorMessageBox?.remove();
-    errorMessageBox = createErrorMessageBox(error);
+    errorMessageBox = createMessageBox(error);
 
     Overlay.of(context).insert(errorMessageBox!);
 
@@ -87,7 +88,7 @@ class _AuthPageState extends State<AuthPage> {
     });
   }
 
-  OverlayEntry createErrorMessageBox(String error) {
+  OverlayEntry createMessageBox(String error) {
     return OverlayEntry(
       builder: (context) => Positioned(
         top: 50,
@@ -118,12 +119,12 @@ class _AuthPageState extends State<AuthPage> {
         automaticallyImplyLeading: false,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: const [
             Text(
               "Login",
               style: TextStyle(color: Color.fromARGB(255, 28, 117, 188), fontSize: 30, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 10),
+            SizedBox(height: 10),
             Text(
               "Please login to continue using the app.",
               style: TextStyle(color: Colors.black, fontSize: 18),
@@ -138,17 +139,11 @@ class _AuthPageState extends State<AuthPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              "EMAIL ADDRESS",
-              style: TextStyle(color: Color.fromARGB(255, 28, 117, 188), fontSize: 18, fontWeight: FontWeight.bold),
-            ),
+            builtText("EMAIL ADDRESS"),
             const SizedBox(height: 10),
             buildTextField(emailController),
             const SizedBox(height: 30),
-            Text(
-              "PASSWORD",
-              style: TextStyle(color: Color.fromARGB(255, 28, 117, 188), fontSize: 18, fontWeight: FontWeight.bold),
-            ),
+            builtText("PASSWORD"),
             const SizedBox(height: 10),
             buildTextField(passwordController, obscureText: obscurePassword, displayEyeIcon: true),
             const SizedBox(height: 40),
@@ -161,9 +156,16 @@ class _AuthPageState extends State<AuthPage> {
     );
   }
 
+  Widget builtText(String text) {
+    return Text(
+      text,
+      style: const TextStyle(color: Color.fromARGB(255, 28, 117, 188), fontSize: 18, fontWeight: FontWeight.bold),
+    );
+  }
+
   Widget buildTextField(TextEditingController controller, {bool obscureText = false, bool displayEyeIcon = false}) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey),
         borderRadius: BorderRadius.circular(8),
@@ -174,7 +176,7 @@ class _AuthPageState extends State<AuthPage> {
             child: TextFormField(
               controller: controller,
               obscureText: obscureText,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 border: InputBorder.none,
               ),
             ),
@@ -182,11 +184,7 @@ class _AuthPageState extends State<AuthPage> {
           if (displayEyeIcon) ...[
             IconButton(
               icon: Icon(obscurePassword ? Icons.visibility_off : Icons.visibility),
-              onPressed: () {
-                setState(() {
-                  obscurePassword = !obscurePassword;
-                });
-              },
+              onPressed: () => setState(() => obscurePassword = !obscurePassword),
             ),
           ]
         ]
@@ -199,10 +197,10 @@ class _AuthPageState extends State<AuthPage> {
       child: SizedBox(
         width: 125,
         height: 50,
-        child: TextButton.icon(
+        child: ElevatedButton.icon(
           onPressed: signIn,
           style: ElevatedButton.styleFrom(
-            backgroundColor: Color.fromARGB(255, 28, 117, 188),
+            backgroundColor: const Color.fromARGB(255, 28, 117, 188),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           ),
           icon: const Icon(Icons.login, color: Colors.white, size: 24),
@@ -218,7 +216,7 @@ class _AuthPageState extends State<AuthPage> {
   Widget forgotPasswordButton() {
     return Center(
       child: TextButton(
-        onPressed: forgotPassword,
+        onPressed: () => Navigator.of(context).pushReplacementNamed(AppRoutes.forgotPassword),
         child: const Text(
           "Forgot Password?",
           style: TextStyle(color: Color.fromARGB(255, 28, 117, 188), fontSize: 18, fontWeight: FontWeight.bold)

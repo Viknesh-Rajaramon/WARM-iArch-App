@@ -2,8 +2,8 @@ import "package:flutter/material.dart";
 
 import "package:warm_app/class.dart";
 import "package:warm_app/const.dart";
+import "package:warm_app/routes.dart";
 import "package:warm_app/util.dart";
-import "package:warm_app/faq_page.dart";
 
 class RemediationTable extends StatefulWidget {
   final List<Revitalization> remedy;
@@ -21,8 +21,7 @@ class _RemediationTableCellState extends State<RemediationTable> {
   @override
   Widget build(BuildContext context) {
     widget.remedy.sort((a, b) {
-      int cmp = num.parse(a.iArch.toStringAsFixed(0)).compareTo(num.parse(b.iArch.toStringAsFixed(0)));
-
+      int cmp = a.iArch.compareTo(b.iArch);
       return cmp == 0 ? a.option.compareTo(b.option) : cmp;
     });
 
@@ -31,7 +30,7 @@ class _RemediationTableCellState extends State<RemediationTable> {
         columns: [
           DataColumn(
             label: Expanded(
-              child: Text(
+              child: const Text(
                 "Remediation Technique",
                 style: TextStyle(color: Colors.black, fontSize: 17, fontWeight: FontWeight.bold),
                 softWrap: true,
@@ -44,7 +43,7 @@ class _RemediationTableCellState extends State<RemediationTable> {
               child: RichText(
                 text: TextSpan(
                   children: [
-                    TextSpan(text: "New I"),
+                    const TextSpan(text: "New I"),
                     WidgetSpan(
                       child: Transform.translate(
                         offset: const Offset(0.0, 5.0),
@@ -54,9 +53,9 @@ class _RemediationTableCellState extends State<RemediationTable> {
                         ),
                       ),
                     ),
-                    TextSpan(text: " Number"),
+                    const TextSpan(text: " Number"),
                   ],
-                  style: TextStyle(color: Colors.black, fontSize: 17, fontWeight: FontWeight.bold)
+                  style: const TextStyle(color: Colors.black, fontSize: 17, fontWeight: FontWeight.bold)
                 ),
                 softWrap: true,
                 textAlign: TextAlign.center,
@@ -65,9 +64,8 @@ class _RemediationTableCellState extends State<RemediationTable> {
             columnWidth: FixedColumnWidth(101),
           ),
         ],
-        rows: List.generate(
-          widget.remedy.length,
-          (int index) => DataRow(
+        rows: widget.remedy.map((item) {
+          return DataRow(
             cells: [
               DataCell(
                 ConstrainedBox(
@@ -77,17 +75,15 @@ class _RemediationTableCellState extends State<RemediationTable> {
                     children: [
                       Expanded(
                         child: Text(
-                          widget.remedy[index].condition,
+                          item.condition,
                           softWrap: true,
                           overflow: TextOverflow.visible,
                           style: const TextStyle(fontSize: 14, color: Colors.black),
                         ),
                       ),
                       IconButton(
-                        icon: Icon(Icons.info_outline, size: 16, color: Colors.black),
-                        onPressed: () {
-                          showPopupMessage(context, widget.remedy[index].condition);
-                        },
+                        icon: const Icon(Icons.info_outline, size: 16, color: Colors.black),
+                        onPressed: () => showPopupMessage(context, item.condition),
                       ),
                     ]
                   ),
@@ -98,18 +94,18 @@ class _RemediationTableCellState extends State<RemediationTable> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 1.0, horizontal: 8.0),
                     decoration: BoxDecoration(
-                      color: getIArchColor(widget.remedy[index].iArch),
+                      color: getIArchColor(item.iArch),
                     ),
                     child: Text(
-                      widget.remedy[index].iArch.toStringAsFixed(0),
+                      item.iArch.toStringAsFixed(0),
                       style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
                     ),
                   )
                 )
               ),
             ],
-          ),
-        ),
+          );
+        }).toList(),
         columnSpacing: 15,
         dataRowMinHeight: 70,
         dataRowMaxHeight: double.infinity,
@@ -127,30 +123,34 @@ class _RemediationTableCellState extends State<RemediationTable> {
   }
 
   void showPopupMessage(BuildContext context, String condition) {
-    List<String> remediatonStep = remediationSteps[condition]!;
+    final remediationStep = remediationSteps[condition];
+
+    if (remediationStep == null || remediationStep.isEmpty) {
+      return;
+    }
     
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Steps to implement Remediation Technique"),
+          title: const Text("Steps to implement Remediation Technique"),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ...List.generate(remediatonStep.length, (index) {
+              ...List.generate(remediationStep.length, (index) {
                 return Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         "${index + 1}.",
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                       ),
                       const SizedBox(width: 5),
                       Expanded(
                         child: Text(
-                          remediatonStep[index],
-                          style: TextStyle(fontSize: 16),
+                          remediationStep[index],
+                          style: const TextStyle(fontSize: 16),
                         ),
                       ),
                     ],
@@ -160,24 +160,15 @@ class _RemediationTableCellState extends State<RemediationTable> {
               Wrap(
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  Text(
+                  const Text(
                     "To learn more about how to implement each step, visit our ",
                     style: TextStyle(color: Colors.black, fontSize: 16),
                   ),
                   GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) => FAQPage()),
-                      );
-                    },
+                    onTap: () => Navigator.of(context).pushReplacementNamed(AppRoutes.faq),
                     child: Text(
                       "FAQ page",
-                      style: TextStyle(
-                        color: Colors.blue,
-                        fontSize: 16,
-                        decoration: TextDecoration.underline,
-                        decorationColor: Colors.blue,
-                      ),
+                      style: const TextStyle(color: Colors.blue, fontSize: 16, decoration: TextDecoration.underline, decorationColor: Colors.blue),
                     ),
                   ),
                 ],
@@ -186,10 +177,8 @@ class _RemediationTableCellState extends State<RemediationTable> {
           ),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text(
                 "Close",
                 style: TextStyle(color: Color.fromARGB(255, 28, 117, 188)),
               ),

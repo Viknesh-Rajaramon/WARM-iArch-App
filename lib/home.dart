@@ -55,21 +55,22 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> getProjectDataFromDB() async {
     final results = await Future.wait([getTokenFromProjectId(userData.projectId), getLocationIdsAndPlantowerSerialByProjectId(userData.projectId)]);
-
-    if (mounted) {
-      setState(() {
-        token = results[0] as String;
-        locationIdsPlantower = results[1] as Map<int, String>;
-      });
-      DatabaseService().closeConnection();
+    if (!mounted) {
+      return;
     }
+
+    setState(() {
+      token = results[0] as String;
+      locationIdsPlantower = results[1] as Map<int, String>;
+    });
+    DatabaseService().closeConnection();
   }
 
   void getCurrentMonitorDataSafely() {
     Timer.periodic(const Duration(minutes: 1), (timer) => getCurrentMonitorData());
 
     Future.doWhile(() async {
-      if (token != "") {
+      if (token.isNotEmpty) {
         await getCurrentMonitorData();
         return false;
       }
@@ -80,27 +81,28 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> getCurrentMonitorData() async {
-    if (token == "") {
+    if (token.isEmpty) {
       return;
     }
 
     var data = await getCurrentMonitorDataFromAllLocations(token, locationIdsPlantower);
-
-    if (mounted) {
-      setState(() {
-        monitorData = data;
-        isLoading = false;
-
-        if (selectedMonitor != null) {
-          updateData(selectedMonitor!);
-        }
-      });
+    if (!mounted) {
+      return;
     }
+
+    setState(() {
+      monitorData = data;
+      isLoading = false;
+
+      if (selectedMonitor != null) {
+        updateData(selectedMonitor!);
+      }
+    });
   }
 
   void getHistoricMonitorDataSafely() {
     Future.doWhile(() async {
-      if (token != "" && selectedMonitor != null) {
+      if (token.isNotEmpty && selectedMonitor != null) {
         await getHistoricMonitorData();
         return false;
       }
@@ -111,17 +113,16 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> getHistoricMonitorData() async {
-    if (token == "" || selectedMonitor == null) {
+    if (token.isEmpty || selectedMonitor == null) {
       return;
     }
 
     var data = await getHistoricMonitorDataByLocationId(token, monitorData[selectedMonitor]!["locationId"]!, monitorData[selectedMonitor]!["plantower"]!);
-
-    if (mounted) {
-      setState(() {
-        iArchValues = data;
-      });
+    if (!mounted) {
+      return;
     }
+
+    setState(() => iArchValues = data);
   }
 
   void updateData(String monitor) {
@@ -130,15 +131,18 @@ class _HomePageState extends State<HomePage> {
     }
 
     final monitorValues = monitorData[monitor];
-    if (monitorValues != null) {
-      setState(() {
-        selectedMonitor = monitor;
-        lastUpdated = monitorValues["timestamp"].toString();
-        iArchValue = calculateIArchValue(monitorValues);
-        remedy = calculateRevitalizationIArchValues(monitorValues);
-        iArchValues = [];
-      });
+    if (monitorValues == null) {
+      return;
     }
+
+    setState(() {
+      selectedMonitor = monitor;
+      lastUpdated = monitorValues["timestamp"].toString();
+      iArchValue = calculateIArchValue(monitorValues);
+      remedy = calculateRevitalizationIArchValues(monitorValues);
+      iArchValues = [];
+    });
+
     getHistoricMonitorDataSafely();
   }
 
@@ -148,7 +152,7 @@ class _HomePageState extends State<HomePage> {
       appBar: isLoading ? null : AppBar(
         title: AppTitle(name: userData.firstName, email: userData.email, timestamp: lastUpdated),
         automaticallyImplyLeading: false,
-        backgroundColor: Color.fromARGB(255, 28, 117, 188),
+        backgroundColor: const Color.fromARGB(255, 28, 117, 188),
         systemOverlayStyle: const SystemUiOverlayStyle(systemStatusBarContrastEnforced: true),
         toolbarHeight: 120,
       ),
@@ -162,9 +166,7 @@ class _HomePageState extends State<HomePage> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          CircularProgressIndicator(
-            color: Color.fromARGB(255, 28, 117, 188),
-          ),
+          CircularProgressIndicator(color: Color.fromARGB(255, 28, 117, 188)),
           SizedBox(height: 15),
           Text(
             "Please wait while the data is being loaded",
@@ -178,7 +180,7 @@ class _HomePageState extends State<HomePage> {
   Widget buildContent() {
     return SingleChildScrollView(
       child: Padding(
-        padding: EdgeInsets.all(30.0),
+        padding: const EdgeInsets.all(30.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -217,7 +219,7 @@ class _HomePageState extends State<HomePage> {
                           text: averageVisible ? "Hide" : "View",
                           style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                         ),
-                        TextSpan(
+                        const TextSpan(
                           text: " I",
                           style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                         ),
@@ -234,7 +236,7 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                         ),
-                        TextSpan(
+                        const TextSpan(
                           text: " Average",
                           style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                         ),

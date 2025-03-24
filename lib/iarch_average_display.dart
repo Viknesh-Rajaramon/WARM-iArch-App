@@ -17,7 +17,7 @@ class IArchAverageTable extends StatelessWidget {
       child: DataTable(
         columns: [
           DataColumn(
-            label: Text(
+            label: const Text(
               "Timeframe",
               style: TextStyle(color: Colors.black, fontSize: 17, fontWeight: FontWeight.bold),
               softWrap: true,
@@ -29,7 +29,7 @@ class IArchAverageTable extends StatelessWidget {
               child: RichText(
                 text: TextSpan(
                   children: [
-                    TextSpan(text: "I"),
+                    const TextSpan(text: "I"),
                     WidgetSpan(
                       child: Transform.translate(
                         offset: const Offset(0.0, 5.0),
@@ -39,9 +39,9 @@ class IArchAverageTable extends StatelessWidget {
                         ),
                       ),
                     ),
-                    TextSpan(text: " Number"),
+                    const TextSpan(text: " Number"),
                   ],
-                  style: TextStyle(color: Colors.black, fontSize: 17, fontWeight: FontWeight.bold)
+                  style: const TextStyle(color: Colors.black, fontSize: 17, fontWeight: FontWeight.bold)
                 ),
                 softWrap: true,
                 textAlign: TextAlign.center,
@@ -50,14 +50,14 @@ class IArchAverageTable extends StatelessWidget {
             columnWidth: FixedColumnWidth(101),
           ),
         ],
-        rows: List.generate(timeFrameForAverage.length, (index) {
-          num averageIArchValue = getAverageIArchValue(iArchValues, int.parse(timeFrameForAverage[index]["numReadings"]!));
+        rows: timeFrameForAverage.map((timeFrame) {
+          num averageIArchValue = getAverageIArchValue(iArchValues, int.parse(timeFrame["numReadings"]!));
           
           return DataRow(
             cells: [
               DataCell(
                 Text(
-                  "${timeFrameForAverage[index]["timeframe"]!} average",
+                  "${timeFrame["timeframe"]} average",
                   softWrap: true,
                   overflow: TextOverflow.visible,
                   style: const TextStyle(fontSize: 16, color: Colors.black),
@@ -65,7 +65,7 @@ class IArchAverageTable extends StatelessWidget {
               ),
               DataCell(
                 Center(
-                  child: iArchValues.isEmpty ? CircularProgressIndicator(
+                  child: iArchValues.isEmpty ? const CircularProgressIndicator(
                     color: Color.fromARGB(255, 28, 117, 188),
                     constraints: BoxConstraints(minWidth: 20, maxWidth: 25, minHeight: 20, maxHeight: 20),
                   ) : Container(
@@ -82,7 +82,7 @@ class IArchAverageTable extends StatelessWidget {
               ),
             ],
           );
-        }),
+        }).toList(),
         columnSpacing: 15,
         dataRowMinHeight: 50,
         dataRowMaxHeight: double.infinity,

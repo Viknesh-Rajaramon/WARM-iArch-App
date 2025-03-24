@@ -16,71 +16,71 @@ const List<Map<String, String>> displayNames = [
 // Index range values and concentration breakpoint values for PM2.5
 const Map<int, BreakpointValues> breakpointValuesPM2_5 = {
   1: BreakpointValues(0, 50, 0, 5, "WHO limit, annually", Color.fromRGBO(0, 255, 0, 1.0)),
-  2: BreakpointValues(51, 100, 6, 9, "24 hr healthy limit EPA", Color.fromRGBO(0, 255, 0, 1.0)),
-  3: BreakpointValues(101, 150, 10, 24, "", Color.fromRGBO(255, 191, 0, 1.0)),
-  4: BreakpointValues(151, 200, 25, 35, "24 hour unhealthy limit", Color.fromRGBO(255, 191, 0, 1.0)),
-  5: BreakpointValues(201, 250, 36, 45, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
-  6: BreakpointValues(251, 300, 46, 55, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
-  7: BreakpointValues(301, 350, 56, 65, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
-  8: BreakpointValues(351, 400, 66, 75, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
-  9: BreakpointValues(401, 450, 76, 85, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
-  10: BreakpointValues(451, 500, 86, 95, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
+  2: BreakpointValues(51, 100, 5, 9, "24 hr healthy limit EPA", Color.fromRGBO(0, 255, 0, 1.0)),
+  3: BreakpointValues(101, 150, 9, 24, "", Color.fromRGBO(255, 191, 0, 1.0)),
+  4: BreakpointValues(151, 200, 24, 35, "24 hour unhealthy limit", Color.fromRGBO(255, 191, 0, 1.0)),
+  5: BreakpointValues(201, 250, 35, 45, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
+  6: BreakpointValues(251, 300, 45, 55, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
+  7: BreakpointValues(301, 350, 55, 65, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
+  8: BreakpointValues(351, 400, 65, 75, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
+  9: BreakpointValues(401, 450, 75, 85, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
+  10: BreakpointValues(451, 500, 85, 95, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
 };
 
 // Index range values and concentration breakpoint values for PM10
 const Map<int, BreakpointValues> breakpointValuesPM10 = {
   1: BreakpointValues(0, 50, 0, 10, "", Color.fromRGBO(0, 255, 0, 1.0)),
-  2: BreakpointValues(51, 100, 11, 20, "WHO limit, annually", Color.fromRGBO(0, 255, 0, 1.0)),
-  3: BreakpointValues(101, 150, 21, 33, "", Color.fromRGBO(255, 191, 0, 1.0)),
-  4: BreakpointValues(151, 200, 34, 50, "24 hour unhealthy limit", Color.fromRGBO(255, 191, 0, 1.0)),
-  5: BreakpointValues(201, 250, 51, 60, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
-  6: BreakpointValues(251, 300, 61, 70, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
-  7: BreakpointValues(301, 350, 71, 80, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
-  8: BreakpointValues(351, 400, 81, 90, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
-  9: BreakpointValues(401, 450, 91, 100, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
-  10: BreakpointValues(451, 500, 101, 110, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
+  2: BreakpointValues(51, 100, 10, 20, "WHO limit, annually", Color.fromRGBO(0, 255, 0, 1.0)),
+  3: BreakpointValues(101, 150, 20, 33, "", Color.fromRGBO(255, 191, 0, 1.0)),
+  4: BreakpointValues(151, 200, 33, 50, "24 hour unhealthy limit", Color.fromRGBO(255, 191, 0, 1.0)),
+  5: BreakpointValues(201, 250, 50, 60, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
+  6: BreakpointValues(251, 300, 60, 70, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
+  7: BreakpointValues(301, 350, 70, 80, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
+  8: BreakpointValues(351, 400, 80, 90, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
+  9: BreakpointValues(401, 450, 90, 100, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
+  10: BreakpointValues(451, 500, 100, 110, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
 };
 
 // Index range values and concentration breakpoint values for TVOC
 const Map<int, BreakpointValues> breakpointValuesTVOC = {
   1: BreakpointValues(0, 50, 0, 150, "", Color.fromRGBO(0, 255, 0, 1.0)),
-  2: BreakpointValues(51, 100, 151, 300, "Recommended upper limit", Color.fromRGBO(0, 255, 0, 1.0)),
-  3: BreakpointValues(101, 150, 301, 350, "", Color.fromRGBO(255, 191, 0, 1.0)),
-  4: BreakpointValues(151, 200, 351, 500, "LEED upper limit", Color.fromRGBO(255, 191, 0, 1.0)),
-  5: BreakpointValues(201, 250, 501, 600, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
-  6: BreakpointValues(251, 300, 601, 700, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
-  7: BreakpointValues(301, 350, 701, 800, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
-  8: BreakpointValues(351, 400, 801, 900, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
-  9: BreakpointValues(401, 450, 901, 1000, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
-  10: BreakpointValues(451, 500, 1001, 1100, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
+  2: BreakpointValues(51, 100, 150, 300, "Recommended upper limit", Color.fromRGBO(0, 255, 0, 1.0)),
+  3: BreakpointValues(101, 150, 300, 350, "", Color.fromRGBO(255, 191, 0, 1.0)),
+  4: BreakpointValues(151, 200, 350, 500, "LEED upper limit", Color.fromRGBO(255, 191, 0, 1.0)),
+  5: BreakpointValues(201, 250, 500, 600, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
+  6: BreakpointValues(251, 300, 600, 700, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
+  7: BreakpointValues(301, 350, 700, 800, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
+  8: BreakpointValues(351, 400, 800, 900, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
+  9: BreakpointValues(401, 450, 900, 1000, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
+  10: BreakpointValues(451, 500, 1000, 1100, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
 };
 
 // Index range values and concentration breakpoint values for CO2
 const Map<int, BreakpointValues> breakpointValuesCO2 = {
   1: BreakpointValues(0, 50, 0, 400, "", Color.fromRGBO(0, 255, 0, 1.0)),
-  2: BreakpointValues(51, 100, 401, 800, "Good limit", Color.fromRGBO(0, 255, 0, 1.0)),
-  3: BreakpointValues(101, 150, 801, 900, "", Color.fromRGBO(255, 191, 0, 1.0)),
-  4: BreakpointValues(151, 200, 901, 1000, "Recommended upper limit", Color.fromRGBO(255, 191, 0, 1.0)),
-  5: BreakpointValues(201, 250, 1001, 1300, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
-  6: BreakpointValues(251, 300, 1301, 1600, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
-  7: BreakpointValues(301, 350, 1601, 1900, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
-  8: BreakpointValues(351, 400, 1901, 2200, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
-  9: BreakpointValues(401, 450, 2201, 2500, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
-  10: BreakpointValues(451, 500, 2501, 2800, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
+  2: BreakpointValues(51, 100, 400, 800, "Good limit", Color.fromRGBO(0, 255, 0, 1.0)),
+  3: BreakpointValues(101, 150, 800, 900, "", Color.fromRGBO(255, 191, 0, 1.0)),
+  4: BreakpointValues(151, 200, 900, 1000, "Recommended upper limit", Color.fromRGBO(255, 191, 0, 1.0)),
+  5: BreakpointValues(201, 250, 1000, 1300, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
+  6: BreakpointValues(251, 300, 1300, 1600, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
+  7: BreakpointValues(301, 350, 1600, 1900, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
+  8: BreakpointValues(351, 400, 1900, 2200, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
+  9: BreakpointValues(401, 450, 2200, 2500, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
+  10: BreakpointValues(451, 500, 2500, 2800, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
 };
 
 // Index range values and concentration breakpoint values for AT
 const Map<int, BreakpointValues> breakpointValuesAT = {
   1: BreakpointValues(0, 50, 65, 70, "", Color.fromRGBO(0, 255, 0, 1.0)),
-  2: BreakpointValues(51, 100, 71, 80, "", Color.fromRGBO(0, 255, 0, 1.0)),
-  3: BreakpointValues(101, 150, 81, 85, "", Color.fromRGBO(255, 191, 0, 1.0)),
-  4: BreakpointValues(151, 200, 86, 90, "OSHA caution level", Color.fromRGBO(255, 191, 0, 1.0)),
-  5: BreakpointValues(201, 250, 91, 95, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
-  6: BreakpointValues(251, 300, 96, 100, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
-  7: BreakpointValues(301, 350, 101, 105, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
-  8: BreakpointValues(351, 400, 106, 110, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
-  9: BreakpointValues(401, 450, 111, 115, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
-  10: BreakpointValues(451, 500, 116, 120, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
+  2: BreakpointValues(51, 100, 70, 80, "", Color.fromRGBO(0, 255, 0, 1.0)),
+  3: BreakpointValues(101, 150, 80, 85, "", Color.fromRGBO(255, 191, 0, 1.0)),
+  4: BreakpointValues(151, 200, 85, 90, "OSHA caution level", Color.fromRGBO(255, 191, 0, 1.0)),
+  5: BreakpointValues(201, 250, 90, 95, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
+  6: BreakpointValues(251, 300, 95, 100, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
+  7: BreakpointValues(301, 350, 100, 105, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
+  8: BreakpointValues(351, 400, 105, 110, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
+  9: BreakpointValues(401, 450, 110, 115, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
+  10: BreakpointValues(451, 500, 115, 120, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
 };
 
 // Map of variables to calculate I-values
@@ -94,15 +94,15 @@ const Map<String, Map<int, BreakpointValues>> iValues = {
 
 const Map<int, IArchScaleColorCode> iArchColorCodes = {
   1: IArchScaleColorCode(0, 50, Color.fromRGBO(0, 255, 0, 1.0)),
-  2: IArchScaleColorCode(51, 100, Color.fromRGBO(0, 255, 0, 1.0)),
-  3: IArchScaleColorCode(101, 150, Color.fromRGBO(255, 191, 0, 1.0)),
-  4: IArchScaleColorCode(151, 200, Color.fromRGBO(255, 191, 0, 1.0)),
-  5: IArchScaleColorCode(201, 250, Color.fromRGBO(255, 0, 0, 1.0)),
-  6: IArchScaleColorCode(251, 300, Color.fromRGBO(255, 0, 0, 1.0)),
-  7: IArchScaleColorCode(301, 350, Color.fromRGBO(255, 0, 0, 1.0)),
-  8: IArchScaleColorCode(351, 400, Color.fromRGBO(255, 0, 0, 1.0)),
-  9: IArchScaleColorCode(401, 450, Color.fromRGBO(255, 0, 0, 1.0)),
-  10: IArchScaleColorCode(451, 500, Color.fromRGBO(255, 0, 0, 1.0)),
+  2: IArchScaleColorCode(50, 100, Color.fromRGBO(0, 255, 0, 1.0)),
+  3: IArchScaleColorCode(100, 150, Color.fromRGBO(255, 191, 0, 1.0)),
+  4: IArchScaleColorCode(150, 200, Color.fromRGBO(255, 191, 0, 1.0)),
+  5: IArchScaleColorCode(200, 250, Color.fromRGBO(255, 0, 0, 1.0)),
+  6: IArchScaleColorCode(250, 300, Color.fromRGBO(255, 0, 0, 1.0)),
+  7: IArchScaleColorCode(300, 350, Color.fromRGBO(255, 0, 0, 1.0)),
+  8: IArchScaleColorCode(350, 400, Color.fromRGBO(255, 0, 0, 1.0)),
+  9: IArchScaleColorCode(400, 450, Color.fromRGBO(255, 0, 0, 1.0)),
+  10: IArchScaleColorCode(450, 500, Color.fromRGBO(255, 0, 0, 1.0)),
 };
 
 const Map<String, List<String>> remediationParameters = {
