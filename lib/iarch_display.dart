@@ -17,32 +17,39 @@ class IArchDisplay extends StatelessWidget {
           style: const TextStyle(color: Colors.black, fontSize: 24, fontWeight: FontWeight.bold),
           children: [
             const TextSpan(text: "Current I"),
-            WidgetSpan(
-              child: Transform.translate(
-                offset: const Offset(0.0, 5.0),
-                child: const Text(
-                  "arch",
-                  style: TextStyle(fontSize: 14, color: Colors.black, fontWeight: FontWeight.bold),
-                ),
-              ),
-            ),
+            _buildSubscriptText("arch"),
             const TextSpan(text: " Number = "),
-            WidgetSpan(
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6.0),
-                decoration: BoxDecoration(
-                  color: getIArchColor(iArchValue),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  iArchValue.toStringAsFixed(0),
-                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black),
-                ),
-              ),
-            ),
+            _buildIArchContainer(iArchValue),
           ],
         ),
       )
+    );
+  }
+
+  WidgetSpan _buildSubscriptText(String text) {
+    return WidgetSpan(
+      alignment: PlaceholderAlignment.baseline,
+      baseline: TextBaseline.alphabetic,
+      child: Text(
+        text,
+        style: const TextStyle(fontSize: 14, color: Colors.black, fontWeight: FontWeight.bold)
+      ),
+    );
+  }
+
+  WidgetSpan _buildIArchContainer(num value) {
+    return WidgetSpan(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 6.0),
+        decoration: BoxDecoration(
+          color: getIArchColor(value),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Text(
+          value.toStringAsFixed(0),
+          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black),
+        ),
+      ),
     );
   }
 }
