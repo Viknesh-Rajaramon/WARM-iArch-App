@@ -3,6 +3,7 @@ import "package:flutter/material.dart";
 
 import "package:warm_app/db/user.dart";
 import "package:warm_app/routes.dart";
+import "package:warm_app/components.dart";
 
 class SetNewPasswordPage extends StatefulWidget {
   final User user;
@@ -13,11 +14,10 @@ class SetNewPasswordPage extends StatefulWidget {
   });
 
   @override
-  _SetNewPasswordPageState createState() => _SetNewPasswordPageState();
+  SetNewPasswordPageState createState() => SetNewPasswordPageState();
 }
 
-class _SetNewPasswordPageState extends State<SetNewPasswordPage> {
-  late User user;
+class SetNewPasswordPageState extends State<SetNewPasswordPage> {
   final TextEditingController newPasswordController = TextEditingController();
   final TextEditingController confirmNewPasswordController = TextEditingController();
   bool obscurePassword = true;
@@ -26,42 +26,37 @@ class _SetNewPasswordPageState extends State<SetNewPasswordPage> {
   @override
   void initState() {
     super.initState();
-    user = widget.user;
+  }
+
+  @override
+  void dispose() {
+    newPasswordController.dispose();
+    confirmNewPasswordController.dispose();
+    super.dispose();
   }
 
   Future<void> setNewPassword() async {
     final newPassword = newPasswordController.text.trim();
     final confirmNewPassword = confirmNewPasswordController.text.trim();
 
-    if (newPassword.isEmpty || newPassword.length < 6) {
-      displayErrorMessage("Password must be at least 6 characters long.");
-      return;
-    } else if (confirmNewPassword.isEmpty) {
-      displayErrorMessage("Please confirm your new password.");
+    if (newPassword.length < 6) {
+      displayMessage("Password must be at least 6 characters long.", Colors.red.shade600);
       return;
     } else if (newPassword != confirmNewPassword) {
-      displayErrorMessage("The passwords do not match.");
+      displayMessage("The passwords do not match.", Colors.red.shade600);
       return;
     }
 
-    final status = await updateUserPassword(user.uuid, newPassword);
+    final status = await updateUserPassword(widget.user.uuid, newPassword);
     if (status == HttpStatus.accepted) {
-      displaySuccessMessage("Password updated successfully.");
+      displayMessage("Password updated successfully.", Colors.lightGreen.shade600);
 
       if (mounted) {
         Navigator.of(context).pushReplacementNamed(AppRoutes.auth);
       }
     } else {
-      displayErrorMessage("Failed to update password. Please try again.");
+      displayMessage("Failed to update password. Please try again.", Colors.red.shade600);
     }    
-  }
-
-  void displayErrorMessage(String error) {
-    displayMessage(error, Colors.red.shade600);
-  }
-
-  void displaySuccessMessage(String message) {
-    displayMessage(message, Colors.lightGreen.shade600);
   }
 
   void displayMessage(String message, Color backgroundColor) {
@@ -78,104 +73,64 @@ class _SetNewPasswordPageState extends State<SetNewPasswordPage> {
     });
   }
 
-  OverlayEntry createMessageBox(String message, Color? backgroundColor) {
-    return OverlayEntry(
-      builder: (context) => Positioned(
-        top: 50,
-        left: 20,
-        right: 20,
-        child: Material(
-          color: Colors.transparent,
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-            decoration: BoxDecoration(
-              color: backgroundColor,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              message,
-              style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
-            ),              
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          "Set up New Password",
-          style: TextStyle(color: Color.fromARGB(255, 28, 117, 188), fontSize: 30, fontWeight: FontWeight.bold),
-        ),
-        toolbarHeight: 100,
-      ),
+      appBar: const _SetNewPasswordAppBar(),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            builtText("NEW PASSWORD"),
+            LabelText("NEW PASSWORD"),
             const SizedBox(height: 10),
-            buildPasswordField(newPasswordController),
+            TextController(controller: newPasswordController),
             const SizedBox(height: 30),
-            builtText("CONFIRM NEW PASSWORD"),
+            LabelText("CONFIRM NEW PASSWORD"),
             const SizedBox(height: 10),
-            buildPasswordField(confirmNewPasswordController, obscureText: obscurePassword, displayEyeIcon: true),
+            TextController(controller: confirmNewPasswordController, obscureText: obscurePassword, onToggleVisibility: () => setState(() => obscurePassword = !obscurePassword)),
             const SizedBox(height: 40),
-            updateButton(),
+            UpdateButton(onPressed: setNewPassword),
           ],
         ),
       ),
     );
   }
+}
 
-  Widget builtText(String text) {
-    return Text(
-      text,
-      style: const TextStyle(color: Color.fromARGB(255, 28, 117, 188), fontSize: 18, fontWeight: FontWeight.bold),
-    );
-  }
+class _SetNewPasswordAppBar extends StatelessWidget implements PreferredSizeWidget {
+  const _SetNewPasswordAppBar();
 
-  Widget buildPasswordField(TextEditingController controller, {bool obscureText = false, bool displayEyeIcon = false}) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey),
-        borderRadius: BorderRadius.circular(8),
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      automaticallyImplyLeading: false,
+      title: const Text(
+        "Set up New Password",
+        style: TextStyle(color: Color.fromARGB(255, 28, 117, 188), fontSize: 30, fontWeight: FontWeight.bold),
       ),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextFormField(
-              controller: controller,
-              obscureText: obscureText,
-              decoration: const InputDecoration(
-                border: InputBorder.none,
-              ),
-            ),
-          ),
-          if (displayEyeIcon) ...[
-            IconButton(
-              icon: Icon(obscurePassword ? Icons.visibility_off : Icons.visibility),
-              onPressed: () => setState(() => obscurePassword = !obscurePassword),
-            ),
-          ]
-        ]
-      )
+      toolbarHeight: 100,
     );
   }
 
-  Widget updateButton() {
+  @override
+  Size get preferredSize => const Size.fromHeight(100);
+}
+
+class UpdateButton extends StatelessWidget {
+  final VoidCallback onPressed;
+
+  const UpdateButton({required this.onPressed, super.key});
+
+  @override
+  Widget build(BuildContext context) {
     return Center(
       child: SizedBox(
         width: 125,
         height: 50,
         child: TextButton.icon(
-          onPressed: setNewPassword,
+          onPressed: onPressed,
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color.fromARGB(255, 28, 117, 188),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -183,7 +138,7 @@ class _SetNewPasswordPageState extends State<SetNewPasswordPage> {
           icon: const Icon(Icons.login, color: Colors.white, size: 24),
           label: const Text(
             "Update",
-            style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)
+            style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
           ),
         ),
       ),

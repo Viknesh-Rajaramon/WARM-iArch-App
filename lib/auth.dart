@@ -6,6 +6,7 @@ import "package:warm_app/change_password.dart";
 import "package:warm_app/db/database.dart";
 import "package:warm_app/db/user.dart";
 import "package:warm_app/routes.dart";
+import "package:warm_app/components.dart";
 
 class AuthPage extends StatefulWidget {
   const AuthPage({super.key});
@@ -83,7 +84,7 @@ class AuthPageState extends State<AuthPage> {
 
   void displayErrorMessage(String error) {
     errorMessageBox?.remove();
-    errorMessageBox = _createMessageBox(error);
+    errorMessageBox = createMessageBox(error, Colors.red.shade600);
     Overlay.of(context).insert(errorMessageBox!);
 
     Future.delayed(Duration(seconds: 3), () {
@@ -97,37 +98,20 @@ class AuthPageState extends State<AuthPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Text(
-              "Login",
-              style: TextStyle(color: Color.fromARGB(255, 28, 117, 188), fontSize: 30, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-            Text(
-              "Please login to continue using the app.",
-              style: TextStyle(color: Colors.black, fontSize: 18),
-            ),
-          ]
-        ),
-        toolbarHeight: 100,
-      ),
+      appBar: const _AuthPageAppBar(),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const _LabelText("EMAIL ADDRESS"),
+            const LabelText("EMAIL ADDRESS"),
             const SizedBox(height: 10),
-            _TextField(controller: emailController),
+            TextController(controller: emailController),
             const SizedBox(height: 30),
-            const _LabelText("PASSWORD"),
+            const LabelText("PASSWORD"),
             const SizedBox(height: 10),
-            _TextField(controller: passwordController, obscureText: obscurePassword, onToggleVisibility: () => setState(() => obscurePassword = !obscurePassword)),
+            TextController(controller: passwordController, obscureText: obscurePassword, onToggleVisibility: () => setState(() => obscurePassword = !obscurePassword)),
             const SizedBox(height: 40),
             _LoginButton(onPressed: signIn),
             const SizedBox(height: 5),
@@ -139,56 +123,33 @@ class AuthPageState extends State<AuthPage> {
   }
 }
 
-class _LabelText extends StatelessWidget{
-  final String text;
-  const _LabelText(this.text);
+class _AuthPageAppBar extends StatelessWidget implements PreferredSizeWidget {
+  const _AuthPageAppBar();
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: const TextStyle(color: Color.fromARGB(255, 28, 117, 188), fontSize: 18, fontWeight: FontWeight.bold),
-    );
-  }
-}
-
-class _TextField extends StatelessWidget {
-  final TextEditingController controller;
-  final bool obscureText;
-  final VoidCallback? onToggleVisibility;
-
-  const _TextField({
-    required this.controller,
-    this.obscureText = false,
-    this.onToggleVisibility,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
+    return AppBar(
+      automaticallyImplyLeading: false,
+      title: const Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: TextFormField(
-              controller: controller,
-              obscureText: obscureText,
-              decoration: const InputDecoration(border: InputBorder.none),
-            ),
+          Text(
+            "Login",
+            style: TextStyle(color: Color.fromARGB(255, 28, 117, 188), fontSize: 30, fontWeight: FontWeight.bold),
           ),
-          if (onToggleVisibility != null)
-            IconButton(
-              icon: Icon(obscureText ? Icons.visibility_off : Icons.visibility),
-              onPressed: onToggleVisibility,
-            ),
+          SizedBox(height: 10),
+          Text(
+            "Please login to continue using the app.",
+            style: TextStyle(color: Colors.black, fontSize: 18),
+          ),
         ],
       ),
+      toolbarHeight: 100,
     );
   }
+
+  @override
+  Size get preferredSize => const Size.fromHeight(100);
 }
 
 class _LoginButton extends StatelessWidget {
@@ -233,28 +194,4 @@ class _ForgotPasswordButton extends StatelessWidget {
       ),
     );
   }
-}
-
-OverlayEntry _createMessageBox(String error) {
-  return OverlayEntry(
-    builder: (context) => Positioned(
-      top: 50,
-      left: 20,
-      right: 20,
-      child: Material(
-        color: Colors.transparent,
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-          decoration: BoxDecoration(
-            color: Colors.red.shade600,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Text(
-            error,
-            style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
-          ),              
-        ),
-      ),
-    ),
-  );
 }
