@@ -1,6 +1,5 @@
 import "package:flutter/material.dart";
 
-import "package:warm_app/auth.dart";
 import "package:warm_app/routes.dart";
 
 void main() {
@@ -13,13 +12,11 @@ class IArchApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
       initialRoute: AppRoutes.auth,
       onGenerateRoute: AppRoutes.generateRoute,
-      onUnknownRoute: (settings) => MaterialPageRoute(
-        builder: (context) => const AuthPage(),
-      ),
+      onUnknownRoute: AppRoutes.unknownRoute,
     );
   }
 }

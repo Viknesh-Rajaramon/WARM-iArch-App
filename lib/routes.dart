@@ -26,4 +26,10 @@ class AppRoutes {
       builder: (context) => const AuthPage(),
     );
   }
+
+  static Route<dynamic> unknownRoute(RouteSettings settings) {
+    return MaterialPageRoute(
+      builder: (context) => const AuthPage(),
+    );
+  }
 }
