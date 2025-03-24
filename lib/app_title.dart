@@ -57,7 +57,10 @@ class AppTitle extends StatelessWidget {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             ),
             icon: const Icon(Icons.logout, color: Colors.white, size: 22),
-            label: const Text("Logout", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+            label: const Text(
+              "Logout",
+              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)
+            ),
           ),
         ),
       ]
@@ -82,7 +85,7 @@ class AppTitle extends StatelessWidget {
             children: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
-                style: ButtonStyle(backgroundColor: WidgetStateProperty.all<Color>(Color.fromARGB(255, 28, 117, 188))),
+                style: ButtonStyle(backgroundColor: WidgetStateProperty.all<Color>(const Color.fromARGB(255, 28, 117, 188))),
                 child: const Text(
                   "No",
                   style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),

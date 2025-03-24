@@ -1,5 +1,6 @@
 import "dart:convert";
 import "dart:io";
+import "package:flutter/foundation.dart";
 import "package:http/http.dart";
 
 import "package:warm_app/util.dart";
@@ -16,17 +17,20 @@ Future<Map<String, Map<String, num>>> getCurrentMonitorDataFromAllLocations(Stri
     final response = await get(Uri.parse(uri));
 
     if (response.statusCode == HttpStatus.ok) {
-      return getProcessedCurrentMonitorData(response.body, locationIds);
+      return await compute(getProcessedCurrentMonitorData, (response.body, locationIds));
     } else {
       throw HttpException("Failed to load data: ${response.statusCode}");
     }
   } catch(error) {
-    print("Error fetching data: $error");
+    debugPrint("Error fetching data: $error");
     return {};
   }
 }
 
-Map<String, Map<String, num>> getProcessedCurrentMonitorData(String responseBody, Map<int, String> locationIds) {
+Map<String, Map<String, num>> getProcessedCurrentMonitorData((String responseBody, Map<int, String> locationIds) data) {
+  final responseBody = data.$1;
+  final locationIds = data.$2;
+  
   List<dynamic> monitors = json.decode(responseBody);
   final monitorData = <String, Map<String, num>>{};
 
@@ -52,7 +56,7 @@ Map<String, Map<String, num>> getProcessedCurrentMonitorData(String responseBody
         applyCorrectionsToRawData(monitorData[locationName]!);
       }
     } catch (e) {
-      print("Error processing monitor data: $e");
+      debugPrint("Error processing monitor data: $e");
     }
   }
   
@@ -68,21 +72,22 @@ Future<List<num>> getHistoricMonitorDataByLocationId(String token, num locationI
     final response = await get(Uri.parse(uri));
 
     if (response.statusCode == HttpStatus.ok) {
-      return getProcessedHistoricMonitorData(response.body, plantowerSerial);
+      return await compute(getProcessedHistoricMonitorData, (response.body, plantowerSerial));
     } else {
       throw HttpException("Failed to load data: ${response.statusCode}");
     }
   } catch(error) {
-    print("Error fetching data: $error");
+    debugPrint("Error fetching data: $error");
     return [];
   }
 }
 
-List<num> getProcessedHistoricMonitorData(String responseBody, num plantowerSerial) {
-  List<dynamic> monitors = json.decode(responseBody);
-  final monitorData = <num>[];
+List<num> getProcessedHistoricMonitorData((String responseBody, num plantowerSerial) data) {
+  final responseBody = data.$1;
+  final plantowerSerial = data.$2;
 
-  for (final monitor in monitors) {
+  List<dynamic> monitors = json.decode(responseBody);
+  return monitors.map((monitor) {
     try {
       Map<String, num> data = {
         "PM2.5": monitor["pm02"] ?? 0,
@@ -96,11 +101,10 @@ List<num> getProcessedHistoricMonitorData(String responseBody, num plantowerSeri
       };
 
       applyCorrectionsToRawData(data);
-      monitorData.add(calculateIArchValue(data));
+      return calculateIArchValue(data);
     } catch (e) {
-      print("Error processing monitor data: $e");
+      debugPrint("Error processing monitor data: $e");
+      return 0;
     }
-  }
-  
-  return monitorData;
+  }).toList();
 }

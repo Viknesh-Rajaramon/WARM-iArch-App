@@ -12,12 +12,18 @@ num calculateApparentTemperature(num T, num rh) =>
   - (5.481717 * pow(10.0, -2) * pow(rh, 2)) + (1.22874 * pow(10.0, -3) * pow(T, 2) * rh)
   + (8.5282 * pow(10.0, -4) * T * pow(rh, 2)) - (1.99 * pow(10.0, -6) * pow(T, 2) * pow(rh, 2));
 
+// Calculate IValue based on breakpoints
 IValue calculateIValue(String name, num qi) {
   BreakpointValues values = getBreakpointValues(name, qi);
   return IValue(name, (values.iHigh - values.iLow)/(values.bpHigh - values.bpLow)*(qi - values.bpLow) + values.iLow);
 }
 
+// Calculate IArch value for sensor readings
 num calculateIArchValue(Map<String, num> sensorReadings) {
+  if (!sensorReadings.containsKey("T") || !sensorReadings.containsKey("RH")) {
+    throw Exception("Temperature (T) and Relative Humidity (RH) must be provided.");
+  }
+
   // First, calculate Apparent Temperature
   sensorReadings["AT"] = calculateApparentTemperature(sensorReadings["T"]!, sensorReadings["RH"]!);
 
@@ -29,15 +35,24 @@ num calculateIArchValue(Map<String, num> sensorReadings) {
   return pow(sumITerms/iValuesList.length, 1/n);
 }
 
-num reduceParameterValue(num value, String reduction) => value * (1 - num.parse(reduction));
+// Reduce a parameter value based on a reduction percentage
+num reduceParameterValue(num value, String reduction) {
+  num? reductionNum = num.tryParse(reduction);
+  return reductionNum != null ? value * (1 - reductionNum) : value;
+}
 
-num setParameterValue(String value) => num.parse(value);
+// Set a parameter value based on string input
+num setParameterValue(String value) => num.tryParse(value) ?? 0;
 
+// Compute new sensor values after applying revitalization
 Map<String, num> calculateReducedParameterValues(Map<String, num> sensorReadings, String condition) {
-  Map<String, String> revitalizationOption = remediationConditions.firstWhere(
-    (element) => element["condition"] == condition,
-    orElse: () => throw Exception("Revitalization option $condition not valid!!!!"),
+  final revitalizationOption = remediationConditions.firstWhereOrNull(
+    (element) => element["condition"] == condition
   );
+
+  if (revitalizationOption == null) {
+    throw Exception("Revitalization option $condition not valid!!!!");
+  }
 
   Map<String, num> newSensorReadings = Map<String, num>.from(sensorReadings);
 
@@ -54,9 +69,14 @@ Map<String, num> calculateReducedParameterValues(Map<String, num> sensorReadings
   return newSensorReadings;
 }
 
-List<Revitalization> calculateRevitalizationIArchValues(Map<String, num> sensorReadings) => 
-  remediationConditions.map((condition) {
-    Map<String, num> newSensorReadings = calculateReducedParameterValues(sensorReadings, condition["condition"]!);
-    return Revitalization(int.parse(condition["option"]!), condition["condition"]!, calculateIArchValue(newSensorReadings));
-  }
-).toList();
+// Compute revitalization IArch values
+List<Revitalization> calculateRevitalizationIArchValues(Map<String, num> sensorReadings) { 
+  return remediationConditions.map((condition) {
+    try {
+      Map<String, num> newSensorReadings = calculateReducedParameterValues(sensorReadings, condition["condition"]!);
+      return Revitalization(int.tryParse(condition["option"] ?? "0") ?? 0, condition["condition"]!, calculateIArchValue(newSensorReadings));
+    } catch(e) {
+      return Revitalization(0, "Error: ${condition["condition"]}", 0);
+    }
+  }).toList();
+}

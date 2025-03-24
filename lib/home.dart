@@ -43,6 +43,7 @@ class _HomePageState extends State<HomePage> {
   List<num> iArchValues = [];
   bool averageVisible = false;
   List<Revitalization> remedy = [];
+  Timer? dataRefreshTimer;
 
   @override
   void initState() {
@@ -53,8 +54,17 @@ class _HomePageState extends State<HomePage> {
     getCurrentMonitorDataSafely();
   }
 
+  @override
+  void dispose() {
+    dataRefreshTimer?.cancel();
+    super.dispose();
+  }
+
   Future<void> getProjectDataFromDB() async {
-    final results = await Future.wait([getTokenFromProjectId(userData.projectId), getLocationIdsAndPlantowerSerialByProjectId(userData.projectId)]);
+    final results = await Future.wait([
+      getTokenFromProjectId(userData.projectId),
+      getLocationIdsAndPlantowerSerialByProjectId(userData.projectId),
+    ]);
     if (!mounted) {
       return;
     }
@@ -63,11 +73,12 @@ class _HomePageState extends State<HomePage> {
       token = results[0] as String;
       locationIdsPlantower = results[1] as Map<int, String>;
     });
+
     DatabaseService().closeConnection();
   }
 
   void getCurrentMonitorDataSafely() {
-    Timer.periodic(const Duration(minutes: 1), (timer) => getCurrentMonitorData());
+    dataRefreshTimer = Timer.periodic(const Duration(minutes: 1), (timer) => getCurrentMonitorData());
 
     Future.doWhile(() async {
       if (token.isNotEmpty) {
@@ -117,7 +128,10 @@ class _HomePageState extends State<HomePage> {
       return;
     }
 
-    var data = await getHistoricMonitorDataByLocationId(token, monitorData[selectedMonitor]!["locationId"]!, monitorData[selectedMonitor]!["plantower"]!);
+    var monitorValues = monitorData[selectedMonitor];
+    if (monitorValues == null) return;
+
+    var data = await getHistoricMonitorDataByLocationId(token, monitorValues["locationId"]!, monitorValues["plantower"]!);
     if (!mounted) {
       return;
     }
@@ -185,7 +199,7 @@ class _HomePageState extends State<HomePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             MonitorDropdown(
-              monitors: monitorData.keys.toList(growable: false),
+              monitors: monitorData.keys.toList(),
               selectedMonitor: selectedMonitor,
               onMonitorSelected: updateData,
             ),
@@ -194,10 +208,10 @@ class _HomePageState extends State<HomePage> {
               Center(
                 child: ElevatedButton(
                   onPressed: () => setState(() => readingsVisible = !readingsVisible),
-                  style: ButtonStyle(backgroundColor: WidgetStateProperty.all<Color>(Color.fromARGB(255, 28, 117, 188))),
+                  style: ButtonStyle(backgroundColor: WidgetStateProperty.all<Color>(const Color.fromARGB(255, 28, 117, 188))),
                   child: Text(
                     readingsVisible ? "Hide Monitor Data" : "View Monitor Data",
-                    style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                    style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -211,7 +225,7 @@ class _HomePageState extends State<HomePage> {
               Center(
                 child: ElevatedButton(
                   onPressed: () => setState(() => averageVisible = !averageVisible),
-                  style: ButtonStyle(backgroundColor: WidgetStateProperty.all<Color>(Color.fromARGB(255, 28, 117, 188))),
+                  style: ButtonStyle(backgroundColor: WidgetStateProperty.all<Color>(const Color.fromARGB(255, 28, 117, 188))),
                   child: Text.rich(
                     TextSpan(
                       children: [

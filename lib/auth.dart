@@ -19,15 +19,12 @@ class _AuthPageState extends State<AuthPage> {
   final TextEditingController passwordController = TextEditingController();
   bool obscurePassword = true;
   OverlayEntry? errorMessageBox;
+  late Future<void> db;
 
   @override
   void initState() {
     super.initState();
-    setUpDB();
-  }
-
-  Future<void> setUpDB() async {
-    await DatabaseService().initializeDB();
+    db = DatabaseService().initializeDB();
   }
 
   Future<void> signIn() async {
@@ -42,15 +39,20 @@ class _AuthPageState extends State<AuthPage> {
     showLoadingDialog();
 
     final (user, status) = await getUserByEmail(email);
-
+    if (!mounted) {
+      return;
+    }
+    
     Navigator.of(context).pop();
 
     if (status == HttpStatus.found && user != null) {
       if (isPasswordAndHashEqual(password, user.password, user.salt)) {
         final nextPage = user.isFirstLogin ? SetNewPasswordPage(user: user) : HomePage(userData: user);
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => nextPage),
-        );
+        if (mounted) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => nextPage),
+          );
+        }
       } else {
         displayErrorMessage("Incorrect password. Please try again.");
       }
@@ -83,8 +85,10 @@ class _AuthPageState extends State<AuthPage> {
     Overlay.of(context).insert(errorMessageBox!);
 
     Future.delayed(Duration(seconds: 3), () {
-      errorMessageBox?.remove();
-      errorMessageBox = null;
+      if (mounted) {
+        errorMessageBox?.remove();
+        errorMessageBox = null;
+      }
     });
   }
 
@@ -97,14 +101,14 @@ class _AuthPageState extends State<AuthPage> {
         child: Material(
           color: Colors.transparent,
           child: Container(
-            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
             decoration: BoxDecoration(
               color: Colors.red.shade600,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
               error,
-              style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
+              style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
             ),              
           ),
         ),
@@ -114,6 +118,20 @@ class _AuthPageState extends State<AuthPage> {
 
   @override
   Widget build(BuildContext context) {
+    return FutureBuilder<void>(
+      future: db,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+        return loginScreen();
+      },
+    );
+  }
+
+  Widget loginScreen() {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -139,11 +157,11 @@ class _AuthPageState extends State<AuthPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            builtText("EMAIL ADDRESS"),
+            builtLabel("EMAIL ADDRESS"),
             const SizedBox(height: 10),
             buildTextField(emailController),
             const SizedBox(height: 30),
-            builtText("PASSWORD"),
+            builtLabel("PASSWORD"),
             const SizedBox(height: 10),
             buildTextField(passwordController, obscureText: obscurePassword, displayEyeIcon: true),
             const SizedBox(height: 40),
@@ -156,7 +174,7 @@ class _AuthPageState extends State<AuthPage> {
     );
   }
 
-  Widget builtText(String text) {
+  Widget builtLabel(String text) {
     return Text(
       text,
       style: const TextStyle(color: Color.fromARGB(255, 28, 117, 188), fontSize: 18, fontWeight: FontWeight.bold),
@@ -176,9 +194,7 @@ class _AuthPageState extends State<AuthPage> {
             child: TextFormField(
               controller: controller,
               obscureText: obscureText,
-              decoration: const InputDecoration(
-                border: InputBorder.none,
-              ),
+              decoration: const InputDecoration(border: InputBorder.none),
             ),
           ),
           if (displayEyeIcon) ...[
