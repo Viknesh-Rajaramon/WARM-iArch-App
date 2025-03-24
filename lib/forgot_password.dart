@@ -30,8 +30,6 @@ class ForgotPasswordPageState extends State<ForgotPasswordPage> {
       return;
     }
     
-    displayMessage("Checking email...", Colors.blue.shade600);
-    
     final (user, status) = await getUserByEmail(email);
     if (!mounted) {
       return;

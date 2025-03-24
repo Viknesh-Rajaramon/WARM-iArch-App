@@ -70,8 +70,9 @@ Future<int> updateUserPassword(String uuid, String newPassword) async {
     return HttpStatus.badRequest;
   }
 
-  String salt = DBCrypt().gensaltWithRounds(14);
-  String hashedPassword = DBCrypt().hashpw(newPassword, salt).substring(salt.length);
+  final data = await compute(getSaltAndHashedPassword, newPassword);
+  String salt = data.$1;
+  String hashedPassword = data.$2;
 
   try {
     final result = await DatabaseService().conn.execute("UPDATE users SET password = :hashedPassword, salt = :salt, is_first_login = FALSE WHERE uuid = :uuid", {"hashedPassword": hashedPassword, "salt": salt, "uuid": uuid});
@@ -81,4 +82,11 @@ Future<int> updateUserPassword(String uuid, String newPassword) async {
     debugPrint("Database error in updateUserPassword(): $e");
     return HttpStatus.internalServerError;
   }
+}
+
+(String, String) getSaltAndHashedPassword(String newPassword) {
+  String salt = DBCrypt().gensaltWithRounds(10);
+  String hashedPassword = DBCrypt().hashpw(newPassword, salt).substring(salt.length);
+
+  return (salt, hashedPassword);
 }
