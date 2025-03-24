@@ -28,7 +28,7 @@ class DatabaseService {
         collation: dotenv.env["DB_COLLATION"] ?? "utf8mb4_general_ci",
       );
 
-      await connection!.connect();
+      await connection!.connect(timeoutMs: 20000);
       debugPrint("Database connected successfully.");
     } catch (e) {
       debugPrint("Database connection failed: $e");
