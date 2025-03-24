@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import "package:warm_app/class.dart";
 
 import "package:warm_app/util.dart";
 
@@ -12,35 +13,15 @@ class MonitorData extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final sensorValues = getDisplayData(monitorData);
+
     return Center(
       child: DataTable(
         columns: const [
-          DataColumn(label: Text("")),
-          DataColumn(label: Text("")),
+          DataColumn(label: SizedBox.shrink()),
+          DataColumn(label: SizedBox.shrink()),
         ],
-        rows: getDisplayData(monitorData).map((value) {
-          return DataRow(
-            cells: [
-              DataCell(
-                SensorDataCell(displayName: value.displayName, unit: value.unit, infoMessage: value.info),
-              ),
-              DataCell(
-                Center(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 1.0, horizontal: 6.0),
-                    decoration: BoxDecoration(
-                      color: value.color,
-                    ),
-                    child: Text(
-                      value.reading.toStringAsFixed(value.decimalPoint),
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-              ),
-            ]
-          );
-        }).toList(),
+        rows: sensorValues.map(_buildDataRow).toList(),
         columnSpacing: 30,
         dataRowMinHeight: 15,
         dataRowMaxHeight: 40,
@@ -55,6 +36,30 @@ class MonitorData extends StatelessWidget {
       )
     );
   }
+
+  DataRow _buildDataRow(SensorDisplayUnit value) {
+    return DataRow(
+      cells: [
+        DataCell(
+          SensorDataCell(displayName: value.displayName, unit: value.unit, infoMessage: value.info),
+        ),
+        DataCell(_buildReadingCell(value)),
+      ],
+    );
+  }
+
+  Widget _buildReadingCell(SensorDisplayUnit value) {
+    return Center(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 1.0, horizontal: 6.0),
+        decoration: BoxDecoration(color: value.color),
+        child: Text(
+          value.reading.toStringAsFixed(value.decimalPoint),
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+      ),
+    );
+  }
 }
 
 class SensorDataCell extends StatelessWidget {
@@ -63,11 +68,11 @@ class SensorDataCell extends StatelessWidget {
   final String infoMessage;
 
   const SensorDataCell({
-    Key? key,
     required this.displayName,
     required this.unit,
     required this.infoMessage,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -82,17 +87,17 @@ class SensorDataCell extends StatelessWidget {
         ),
         const SizedBox(width: 10),
         GestureDetector(
-          onTap: () => showPopupMessage(context),
+          onTap: () => _showPopupMessage(context),
           child: const Icon(Icons.info_outline, size: 16, color: Colors.black),
         )
       ],
     );
   }
 
-  void showPopupMessage(BuildContext context) {
+  void _showPopupMessage(BuildContext context) {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (context) {
         return AlertDialog(
           content: Text(infoMessage),
           actions: [
