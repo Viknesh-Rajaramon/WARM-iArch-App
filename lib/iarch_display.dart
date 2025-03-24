@@ -28,11 +28,12 @@ class IArchDisplay extends StatelessWidget {
 
   WidgetSpan _buildSubscriptText(String text) {
     return WidgetSpan(
-      alignment: PlaceholderAlignment.baseline,
-      baseline: TextBaseline.alphabetic,
-      child: Text(
-        text,
-        style: const TextStyle(fontSize: 14, color: Colors.black, fontWeight: FontWeight.bold)
+      child: Transform.translate(
+        offset: const Offset(0.0, 4.0),
+        child: Text(
+          text,
+          style: const TextStyle(fontSize: 14, color: Colors.black, fontWeight: FontWeight.bold),
+        ),
       ),
     );
   }

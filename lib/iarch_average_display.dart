@@ -28,7 +28,7 @@ class IArchAverageTable extends StatelessWidget {
               child: RichText(
                 text: TextSpan(
                   children: [
-                    const TextSpan(text: "I"),
+                    const TextSpan(text: "Average I"),
                     _buildSubscriptText("arch"),
                     const TextSpan(text: " Number"),
                   ],
@@ -77,11 +77,12 @@ class IArchAverageTable extends StatelessWidget {
 
   WidgetSpan _buildSubscriptText(String text) {
     return WidgetSpan(
-      alignment: PlaceholderAlignment.baseline,
-      baseline: TextBaseline.alphabetic,
-      child: Text(
-        text,
-        style: const TextStyle(fontSize: 13, color: Colors.black, fontWeight: FontWeight.bold)
+      child: Transform.translate(
+        offset: const Offset(0.0, 5.0),
+        child: Text(
+          text,
+          style: const TextStyle(fontSize: 13, color: Colors.black, fontWeight: FontWeight.bold),
+        ),
       ),
     );
   }

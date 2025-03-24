@@ -189,41 +189,43 @@ class HomePageState extends State<HomePage> {
   }
 
   Widget buildContent() {
-    return Padding(
-      padding: const EdgeInsets.all(30.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          MonitorDropdown(
-            monitors: monitorData.keys.toList(),
-            selectedMonitor: selectedMonitor,
-            onMonitorSelected: updateData,
-          ),
-          const SizedBox(height: 25),
-          if (selectedMonitor != null) ...[
-            const SizedBox(height: 25),
-            Center(
-              child: _ToggleButton(
-                label: "Monitor Data",
-                isVisible: readingsVisible,
-                child: MonitorData(monitorData: monitorData[selectedMonitor]!),
-              ),
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(30.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            MonitorDropdown(
+              monitors: monitorData.keys.toList(),
+              selectedMonitor: selectedMonitor,
+              onMonitorSelected: updateData,
             ),
             const SizedBox(height: 25),
-            IArchDisplay(iArchValue: iArchValue),
-            const SizedBox(height: 25),
-            Center(
-              child: _ToggleButton(
-                label: "iARCH Average",
-                isVisible: averageVisible,
-                child: IArchAverageTable(iArchValues: iArchValues),
+            if (selectedMonitor != null) ...[
+              const SizedBox(height: 25),
+              Center(
+                child: _ToggleButton(
+                  label: "Monitor Data",
+                  isVisible: readingsVisible,
+                  child: MonitorData(monitorData: monitorData[selectedMonitor]!),
+                ),
               ),
-            ),
-            const SizedBox(height: 25),
-            RemediationTable(remedy: remedy),
-            const SizedBox(height: 25),
+              const SizedBox(height: 25),
+              IArchDisplay(iArchValue: iArchValue),
+              const SizedBox(height: 25),
+              Center(
+                child: _ToggleButton(
+                  label: "iARCH Average",
+                  isVisible: averageVisible,
+                  child: IArchAverageTable(iArchValues: iArchValues),
+                ),
+              ),
+              const SizedBox(height: 25),
+              RemediationTable(remedy: remedy),
+              const SizedBox(height: 25),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }

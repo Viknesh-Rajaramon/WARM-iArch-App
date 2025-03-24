@@ -48,7 +48,7 @@ class RemediationTableCellState extends State<RemediationTable> {
       child: DataTable(
         columns: [
           DataColumn(label: _buildHeaderText("Remediation Technique")),
-          DataColumn(label: _buildHeaderText("New I", subscript: "arch", suffix: " Number")),
+          DataColumn(label: _buildHeaderText("New I", subscript: "arch", suffix: " Number"), columnWidth: FixedColumnWidth(101)),
         ],
         rows: widget.remedy.map(_buildDataRow).toList(),
         columnSpacing: 15,
@@ -68,26 +68,29 @@ class RemediationTableCellState extends State<RemediationTable> {
   }
 
   Widget _buildHeaderText(String text, {String? subscript, String? suffix}) {
-    return RichText(
-      textAlign: TextAlign.center,
-      text: TextSpan(
-        style: const TextStyle(color: Colors.black, fontSize: 17, fontWeight: FontWeight.bold),
-        children: [
-          TextSpan(text: text),
-          if (subscript != null) _buildSubscriptText(subscript),
-          if (suffix != null) TextSpan(text: suffix),
-        ],
+    return Expanded(
+      child: RichText(
+        textAlign: TextAlign.center,
+        text: TextSpan(
+          style: const TextStyle(color: Colors.black, fontSize: 17, fontWeight: FontWeight.bold),
+          children: [
+            TextSpan(text: text),
+            if (subscript != null) _buildSubscriptText(subscript),
+            if (suffix != null) TextSpan(text: suffix),
+          ],
+        ),
       ),
     );
   }
 
   WidgetSpan _buildSubscriptText(String text) {
     return WidgetSpan(
-      alignment: PlaceholderAlignment.baseline,
-      baseline: TextBaseline.alphabetic,
-      child: Text(
-        text,
-        style: const TextStyle(fontSize: 13, color: Colors.black, fontWeight: FontWeight.bold)
+      child: Transform.translate(
+        offset: const Offset(0.0, 4.0),
+        child: Text(
+          text,
+          style: const TextStyle(fontSize: 13, color: Colors.black, fontWeight: FontWeight.bold),
+        ),
       ),
     );
   }
@@ -175,7 +178,7 @@ class RemediationTableCellState extends State<RemediationTable> {
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             const Text(
-              "To learn more, visit our ",
+              "To learn more about how to implement each step, visit our ",
               style: TextStyle(color: Colors.black, fontSize: 16)
             ),
             GestureDetector(

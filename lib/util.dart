@@ -86,8 +86,7 @@ String formatDateTime(DateTime datetime) {
 
 (String, String) getfromAndToTimestamp() {
   DateTime toTime = DateTime.now().toUtc();
-  DateTime fromTime = toTime.subtract(Duration(hours: 12, minutes: 25));
-  
+  DateTime fromTime = toTime.subtract(Duration(hours: 13));
   
   return (formatDateTime(fromTime), formatDateTime(toTime));
 }
