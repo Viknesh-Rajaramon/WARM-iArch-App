@@ -36,9 +36,9 @@ BreakpointValues getBreakpointValues(String name, num rawInput) {
     throw ArgumentError("Invalid reading name: $name");
   }
 
-  return breakpointValuesMap.values.firstWhere(
+  return breakpointValuesMap.entries.map((e) => e.value).firstWhere(
     (bpValue) => bpValue.bpLow <= rawInput && rawInput <= bpValue.bpHigh,
-    orElse: () => breakpointValuesMap[10]!,
+    orElse: () => breakpointValuesMap[10]
   );
 }
 
