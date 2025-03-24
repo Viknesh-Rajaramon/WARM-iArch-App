@@ -27,7 +27,7 @@ class MonitorData extends StatelessWidget {
         dataRowMaxHeight: 40,
         headingRowHeight: 0,
         dividerThickness: 0.01,
-        border: TableBorder(
+        border: const TableBorder(
           top: BorderSide(style: BorderStyle.solid, width: 2.5, color: Color.fromARGB(255, 28, 117, 188)),
           right: BorderSide(style: BorderStyle.solid, width: 2.5, color: Color.fromARGB(255, 28, 117, 188)),
           bottom: BorderSide(style: BorderStyle.solid, width: 2.5, color: Color.fromARGB(255, 28, 117, 188)),
