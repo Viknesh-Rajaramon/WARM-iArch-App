@@ -3,7 +3,7 @@ import "package:flutter/material.dart";
 final List<FaqData> faqData = [
   FaqData(
     "What is a CR box?",
-    Text(
+    const Text(
       "A Corsi-Rosenthal box (CR box) is a do-it-yourself (DIY) air purifier which reduces airborne pollutants. It is made from common components like a box fan and MERV 13 air filters, making it an affordable solution for improving indoor air quality.",
       style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500),
     )
@@ -13,7 +13,7 @@ final List<FaqData> faqData = [
     Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        const Text(
           "A CR box collects particulate matter, i.e., microscopic solids or liquid droplets that are so small that some of them can be inhaled and cause serious health issues.",
           style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500),
         ),
@@ -26,7 +26,7 @@ final List<FaqData> faqData = [
   ),
   FaqData(
     "How does a CR box collect particles?",
-    Text(
+    const Text(
       "The CR box draws air through the air filters (MERV 13) using a box fan. The filter captures particles, and the fan circulates the clean air back into the room.",
       style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500),
     )
@@ -96,7 +96,7 @@ final List<FaqData> faqData = [
     Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        const Text(
           "Install a dehumidifier that takes moisture out of the air in your home.",
           style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500),
         ),
@@ -122,7 +122,7 @@ Widget bulletPoint(String boldText, String normalText, bool isBulletPoint, {bool
         if (isSubBulletPoint) ...[
           const SizedBox(width: 25),
         ],
-        Text(
+        const Text(
           "\u2022",
           style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)
         ),

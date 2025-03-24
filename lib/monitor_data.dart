@@ -14,7 +14,7 @@ class MonitorData extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: DataTable(
-        columns: [
+        columns: const [
           DataColumn(label: Text("")),
           DataColumn(label: Text("")),
         ],
@@ -33,7 +33,7 @@ class MonitorData extends StatelessWidget {
                     ),
                     child: Text(
                       value.reading.toStringAsFixed(value.decimalPoint),
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
@@ -57,7 +57,7 @@ class MonitorData extends StatelessWidget {
   }
 }
 
-class SensorDataCell extends StatefulWidget {
+class SensorDataCell extends StatelessWidget {
   final String displayName;
   final String unit;
   final String infoMessage;
@@ -70,31 +70,20 @@ class SensorDataCell extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _SensorDataCellState createState() => _SensorDataCellState();
-}
-
-class _SensorDataCellState extends State<SensorDataCell> {
-  @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Expanded(
           child: Text(
-            "${widget.displayName} (${widget.unit})",
+            "$displayName ($unit)",
             style: const TextStyle(fontSize: 16),
           ),
         ),
         const SizedBox(width: 10),
         GestureDetector(
-          onTap: () {
-            showPopupMessage(context);
-          },
-          child: Icon(
-            Icons.info_outline,
-            size: 16,
-            color: Colors.black,
-          ),
+          onTap: () => showPopupMessage(context),
+          child: const Icon(Icons.info_outline, size: 16, color: Colors.black),
         )
       ],
     );
@@ -105,12 +94,10 @@ class _SensorDataCellState extends State<SensorDataCell> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          content: Text(widget.infoMessage),
+          content: Text(infoMessage),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+              onPressed: () => Navigator.of(context).pop(),
               child: const Text(
                 "Close",
                 style: TextStyle(color: Color.fromARGB(255, 28, 117, 188)),

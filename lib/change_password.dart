@@ -33,19 +33,18 @@ class _SetNewPasswordPageState extends State<SetNewPasswordPage> {
     final newPassword = newPasswordController.text.trim();
     final confirmNewPassword = confirmNewPasswordController.text.trim();
 
-    if (newPassword == "") {
-      displayErrorMessage("Please enter your new password.");
+    if (newPassword.isEmpty || newPassword.length < 6) {
+      displayErrorMessage("Password must be at least 6 characters long.");
       return;
-    } else if (confirmNewPassword == "") {
-      displayErrorMessage("Please enter your new password again for confirmation.");
+    } else if (confirmNewPassword.isEmpty) {
+      displayErrorMessage("Please confirm your new password.");
       return;
     } else if (newPassword != confirmNewPassword) {
-      displayErrorMessage("The password does not match.");
+      displayErrorMessage("The passwords do not match.");
       return;
-    } else {}
+    }
 
     final status = await updateUserPassword(user.uuid, newPassword);
-
     if (status == HttpStatus.accepted) {
       displaySuccessMessage("Password updated successfully.");
 
@@ -71,16 +70,15 @@ class _SetNewPasswordPageState extends State<SetNewPasswordPage> {
 
     Overlay.of(context).insert(messageBox!);
 
-    Future.delayed(Duration(seconds: 3), () {
+    Future.delayed(const Duration(seconds: 3), () {
       if (messageBox != null) {
         messageBox?.remove();
         messageBox = null;
       }
-      
     });
   }
 
-  OverlayEntry createMessageBox(String error, Color? backgroundColor) {
+  OverlayEntry createMessageBox(String message, Color? backgroundColor) {
     return OverlayEntry(
       builder: (context) => Positioned(
         top: 50,
@@ -89,14 +87,14 @@ class _SetNewPasswordPageState extends State<SetNewPasswordPage> {
         child: Material(
           color: Colors.transparent,
           child: Container(
-            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
             decoration: BoxDecoration(
               color: backgroundColor,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
-              error,
-              style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
+              message,
+              style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
             ),              
           ),
         ),
@@ -108,31 +106,25 @@ class _SetNewPasswordPageState extends State<SetNewPasswordPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           "Set up New Password",
           style: TextStyle(color: Color.fromARGB(255, 28, 117, 188), fontSize: 30, fontWeight: FontWeight.bold),
         ),
         toolbarHeight: 100,
       ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              "NEW PASSWORD",
-              style: TextStyle(color: Color.fromARGB(255, 28, 117, 188), fontSize: 18, fontWeight: FontWeight.bold),
-            ),
+            builtText("NEW PASSWORD"),
             const SizedBox(height: 10),
-            buildTextField(newPasswordController),
+            buildPasswordField(newPasswordController),
             const SizedBox(height: 30),
-            Text(
-              "CONFIRM NEW PASSWORD",
-              style: TextStyle(color: Color.fromARGB(255, 28, 117, 188), fontSize: 18, fontWeight: FontWeight.bold),
-            ),
+            builtText("CONFIRM NEW PASSWORD"),
             const SizedBox(height: 10),
-            buildTextField(confirmNewPasswordController, obscureText: obscurePassword, displayEyeIcon: true),
+            buildPasswordField(confirmNewPasswordController, obscureText: obscurePassword, displayEyeIcon: true),
             const SizedBox(height: 40),
             updateButton(),
           ],
@@ -141,9 +133,16 @@ class _SetNewPasswordPageState extends State<SetNewPasswordPage> {
     );
   }
 
-  Widget buildTextField(TextEditingController controller, {bool obscureText = false, bool displayEyeIcon = false}) {
+  Widget builtText(String text) {
+    return Text(
+      text,
+      style: const TextStyle(color: Color.fromARGB(255, 28, 117, 188), fontSize: 18, fontWeight: FontWeight.bold),
+    );
+  }
+
+  Widget buildPasswordField(TextEditingController controller, {bool obscureText = false, bool displayEyeIcon = false}) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey),
         borderRadius: BorderRadius.circular(8),
@@ -154,7 +153,7 @@ class _SetNewPasswordPageState extends State<SetNewPasswordPage> {
             child: TextFormField(
               controller: controller,
               obscureText: obscureText,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 border: InputBorder.none,
               ),
             ),
@@ -162,11 +161,7 @@ class _SetNewPasswordPageState extends State<SetNewPasswordPage> {
           if (displayEyeIcon) ...[
             IconButton(
               icon: Icon(obscurePassword ? Icons.visibility_off : Icons.visibility),
-              onPressed: () {
-                setState(() {
-                  obscurePassword = !obscurePassword;
-                });
-              },
+              onPressed: () => setState(() => obscurePassword = !obscurePassword),
             ),
           ]
         ]
@@ -182,7 +177,7 @@ class _SetNewPasswordPageState extends State<SetNewPasswordPage> {
         child: TextButton.icon(
           onPressed: setNewPassword,
           style: ElevatedButton.styleFrom(
-            backgroundColor: Color.fromARGB(255, 28, 117, 188),
+            backgroundColor: const Color.fromARGB(255, 28, 117, 188),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           ),
           icon: const Icon(Icons.login, color: Colors.white, size: 24),

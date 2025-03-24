@@ -15,20 +15,15 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   final TextEditingController emailController = TextEditingController();
   OverlayEntry? messageBox;
 
-  @override
-  void initState() {
-    super.initState();
-  }
-
   Future<void> setNewPassword() async {
     final email = emailController.text.trim();
 
-    if (email == "") {
-      displayErrorMessage("Please enter your email address.");
+    if (email.isEmpty) {
+      displayMessage("Please enter your email address.", Colors.red.shade600);
       return;
     }
-
-    displayLoadingMessage("Checking email...");
+    
+    displayMessage("Checking email...", Colors.blue.shade600);
     
     final (user, status) = await getUserByEmail(email);
     if (!mounted) {
@@ -42,24 +37,16 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             MaterialPageRoute(builder: (context) => SetNewPasswordPage(user: user)),
           );
         } else {
-          displayErrorMessage("User not found.");
+          displayMessage("User not found.", Colors.red.shade600);
         }
         break;
       case HttpStatus.notFound:
-        displayErrorMessage("User not found.");
+        displayMessage("User not found.", Colors.red.shade600);
         break;
       default:
-        displayErrorMessage("Could not fetch user. Please try again.");
+        displayMessage("Could not fetch user. Please try again.", Colors.red.shade600);
         break;
     }
-  }
-
-  void displayErrorMessage(String error) {
-    displayMessage(error, Colors.red.shade600);
-  }
-
-  void displayLoadingMessage(String message) {
-    displayMessage(message, Colors.blue.shade600);
   }
 
   void displayMessage(String message, Color backgroundColor) {
@@ -68,12 +55,11 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
     Overlay.of(context).insert(messageBox!);
 
-    Future.delayed(Duration(seconds: 3), () {
+    Future.delayed(const Duration(seconds: 3), () {
       if (messageBox != null) {
         messageBox?.remove();
         messageBox = null;
       }
-      
     });
   }
 
@@ -86,7 +72,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         child: Material(
           color: Colors.transparent,
           child: Container(
-            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
             decoration: BoxDecoration(
               color: backgroundColor,
               borderRadius: BorderRadius.circular(8),
@@ -105,19 +91,19 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           "Forgot Password",
           style: TextStyle(color: Color.fromARGB(255, 28, 117, 188), fontSize: 30, fontWeight: FontWeight.bold),
         ),
         toolbarHeight: 100,
       ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               "Enter your Email Address",
               style: TextStyle(color: Color.fromARGB(255, 28, 117, 188), fontSize: 18, fontWeight: FontWeight.bold),
             ),
@@ -133,7 +119,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
   Widget buildTextField(TextEditingController controller) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey),
         borderRadius: BorderRadius.circular(8),
@@ -141,8 +127,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       child: TextFormField(
         controller: controller,
         keyboardType: TextInputType.emailAddress,
-        textInputAction: TextInputAction.done,
-        decoration: InputDecoration(
+        textInputAction: TextInputAction.next,
+        decoration: const InputDecoration(
           border: InputBorder.none,
           hintText: "Enter your email",
         ),
@@ -156,13 +142,13 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       child: SizedBox(
         width: 125,
         height: 50,
-        child: TextButton.icon(
+        child: TextButton(
           onPressed: setNewPassword,
           style: ElevatedButton.styleFrom(
-            backgroundColor: Color.fromARGB(255, 28, 117, 188),
+            backgroundColor: const Color.fromARGB(255, 28, 117, 188),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           ),
-          label: const Text(
+          child: const Text(
             "Continue",
             style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)
           ),

@@ -25,11 +25,11 @@ class AppTitle extends StatelessWidget {
           children: [
             Text(
               name,
-              style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+              style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
             ),
             Text(
               email,
-              style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
+              style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 20),
             Row(
@@ -37,11 +37,11 @@ class AppTitle extends StatelessWidget {
               children: [
                 Text(
                   "Last Updated: ",
-                  style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
+                  style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
                 ),
                 Text(
                   DateFormat("MMM d, hh:mm:ss a").format(DateTime.fromMillisecondsSinceEpoch(int.parse(timestamp))),
-                  style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.normal),
+                  style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.normal),
                 ),
               ],
             ),
@@ -81,9 +81,7 @@ class AppTitle extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
+                onPressed: () => Navigator.of(context).pop(),
                 style: ButtonStyle(backgroundColor: WidgetStateProperty.all<Color>(Color.fromARGB(255, 28, 117, 188))),
                 child: const Text(
                   "No",

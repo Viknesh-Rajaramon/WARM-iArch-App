@@ -10,15 +10,15 @@ class AppRoutes {
   static const String forgotPassword = "/forgot_password";
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
-    switch (settings.name) {
-      case auth:
-        return MaterialPageRoute(builder: (_) => const AuthPage());
-      case faq:
-        return MaterialPageRoute(builder: (_) => const FAQPage());
-      case forgotPassword:
-        return MaterialPageRoute(builder: (_) => const ForgotPasswordPage());
-      default:
-        return MaterialPageRoute(builder: (_) => const AuthPage());
-    }
+    final routes = <String, WidgetBuilder> {
+      auth: (context) => const AuthPage(),
+      faq: (context) => const FAQPage(),
+      forgotPassword: (context) => const ForgotPasswordPage(),
+    };
+
+    WidgetBuilder? builder = routes[settings.name];
+    return MaterialPageRoute(
+      builder: (context) => builder != null ? builder(context) : const AuthPage(),
+    );
   }
 }
