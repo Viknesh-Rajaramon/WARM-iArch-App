@@ -43,7 +43,7 @@ Map<String, Map<String, num>> getProcessedCurrentMonitorData((String responseBod
         monitorData[locationName] = {
           "PM2.5": monitor["pm02"] ?? 0,
           "PM10": monitor["pm10"] ?? 0,
-          "TVOC": monitor["tvoc"] ?? 0,
+          "TVOCppb": monitor["tvoc"] ?? 0,
           "CO2": monitor["rco2"] ?? 0,
           "RH": monitor["rhum"] ?? 0,
           "T": monitor["atmp"] ?? 0,
@@ -92,7 +92,7 @@ List<num> getProcessedHistoricMonitorData((String responseBody, num plantowerSer
       Map<String, num> data = {
         "PM2.5": monitor["pm02"] ?? 0,
         "PM10": monitor["pm10"] ?? 0,
-        "TVOC": monitor["tvoc"] ?? 0,
+        "TVOCppb": monitor["tvoc"] ?? 0,
         "CO2": monitor["rco2"] ?? 0,
         "RH": monitor["rhum"] ?? 0,
         "T": monitor["atmp"] ?? 0,
