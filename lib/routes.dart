@@ -9,16 +9,27 @@ class AppRoutes {
   static const String faq = "/faq";
   static const String forgotPassword = "/forgot_password";
 
-  static Route<dynamic> generateRoute(RouteSettings settings) {
-    final routes = <String, WidgetBuilder> {
-      auth: (context) => const AuthPage(),
-      faq: (context) => const FAQPage(),
-      forgotPassword: (context) => const ForgotPasswordPage(),
-    };
+  static final Map<String, WidgetBuilder> routes = {
+    auth: (context) => const AuthPage(),
+    faq: (context) => const FAQPage(),
+    forgotPassword: (context) => const ForgotPasswordPage(),
+  };
 
-    WidgetBuilder? builder = routes[settings.name];
+  static Route<dynamic> generateRoute(RouteSettings settings) {
+    final builder = routes[settings.name];
+
+    if (builder != null) {
+      return MaterialPageRoute(builder: builder);
+    }
+
     return MaterialPageRoute(
-      builder: (context) => builder != null ? builder(context) : const AuthPage(),
+      builder: (context) => const AuthPage(),
+    );
+  }
+
+  static Route<dynamic> unknownRoute(RouteSettings settings) {
+    return MaterialPageRoute(
+      builder: (context) => const AuthPage(),
     );
   }
 }

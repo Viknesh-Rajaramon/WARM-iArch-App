@@ -1,4 +1,5 @@
 import "dart:io";
+import "package:flutter/foundation.dart";
 
 import "package:warm_app/db/database.dart";
 import "package:warm_app/const.dart";
@@ -15,7 +16,7 @@ class Monitor {
   factory Monitor.fromJson(Map<String, dynamic> json) {
     return Monitor(
       json["serial_no"] as String,
-      int.parse(json["location_id"]),
+      int.parse(json["location_id"].toString()),
       json["name"] as String,
       json["plantower_serial"] ?? defaultPTSerial,
       json["project_id"] as String,
@@ -24,37 +25,31 @@ class Monitor {
 }
 
 Future<(List<Monitor>, int)> getMonitorsByProjectId(String projectId) async {
-  if (projectId == "") {
+  if (projectId.isEmpty) {
     return (<Monitor>[], HttpStatus.badRequest);
   }
 
-  return await Future(() async {
-    try { 
-      final result = await DatabaseService().conn.execute("SELECT * FROM monitors WHERE project_id = :projectId", {"projectId": projectId});
+  try { 
+    final result = await DatabaseService().conn.execute("SELECT * FROM monitors WHERE project_id = :projectId", {"projectId": projectId});
 
-      if (result.numOfRows == 0) {
-        return (<Monitor>[], HttpStatus.notFound);
-      }
-
-      List<Monitor> monitors = result.rows.map((row) => Monitor.fromJson(row.assoc())).toList();
-      
-      return (monitors, HttpStatus.found);
-    } catch (_) {
-      return (<Monitor>[], HttpStatus.internalServerError);
+    if (result.numOfRows == 0) {
+      return (<Monitor>[], HttpStatus.notFound);
     }
-  });
+
+    List<Monitor> monitors = result.rows.map((row) => Monitor.fromJson(row.assoc())).toList();
+      
+    return (monitors, HttpStatus.found);
+  } catch (e) {
+    debugPrint("Database error in getMonitorsByProjectId(): $e");
+    return (<Monitor>[], HttpStatus.internalServerError);
+  }
 }
 
 Future<Map<int, String>> getLocationIdsAndPlantowerSerialByProjectId(String projectId) async {
-  if (projectId == "") {
+  if (projectId.isEmpty) {
     return {};
   }
     
   final (monitors, status) = await getMonitorsByProjectId(projectId);
-
-  if (status != HttpStatus.found) {
-    return {};
-  }
-    
-  return {for (var monitor in monitors) monitor.locationId: monitor.plantowerSerial};
+  return status == HttpStatus.found ? {for (var monitor in monitors) monitor.locationId: monitor.plantowerSerial} : {};
 }

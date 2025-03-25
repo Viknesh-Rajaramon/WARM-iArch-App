@@ -1,19 +1,25 @@
+import "package:flutter/foundation.dart";
 import "package:mysql_client/mysql_client.dart";
 import "package:flutter_dotenv/flutter_dotenv.dart";
 
 class DatabaseService {
   static final DatabaseService _instance = DatabaseService._internal();
-  late MySQLConnection conn;
+  MySQLConnection? connection;
 
   factory DatabaseService() => _instance;
 
   DatabaseService._internal();
 
   Future<void> initializeDB() async {
+    if (connection != null && connection!.connected) {
+      debugPrint("Database already connected.");
+      return;
+    }
+    
     try {
       await dotenv.load(fileName: ".env");
 
-      conn = await MySQLConnection.createConnection(
+      connection = await MySQLConnection.createConnection(
         host: dotenv.env["DB_HOST"] ?? "localhost",
         port: int.tryParse(dotenv.env["DB_PORT"] ?? "3306") ?? 3306,
         userName: dotenv.env["DB_USER"] ?? "",
@@ -22,14 +28,26 @@ class DatabaseService {
         collation: dotenv.env["DB_COLLATION"] ?? "utf8mb4_general_ci",
       );
 
-      await conn.connect();
-      print("Database connected successfully.");
+      await connection!.connect(timeoutMs: 20000);
+      debugPrint("Database connected successfully.");
     } catch (e) {
-      print("Database connection failed: $e");
+      debugPrint("Database connection failed: $e");
+      connection = null;
     }
   }
 
+  MySQLConnection get conn {
+    if (connection == null || !connection!.connected) {
+      throw Exception("Database connection is not initialized. Call initializeDB() first.");
+    }
+    return connection!;
+  }
+
   Future<void> closeConnection() async {
-    await conn.close();
+    if (connection != null && connection!.connected) {
+      await connection!.close();
+      debugPrint("Database connection closed.");
+    }
+    connection = null;
   }
 }

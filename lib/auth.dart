@@ -6,15 +6,16 @@ import "package:warm_app/change_password.dart";
 import "package:warm_app/db/database.dart";
 import "package:warm_app/db/user.dart";
 import "package:warm_app/routes.dart";
+import "package:warm_app/components.dart";
 
 class AuthPage extends StatefulWidget {
   const AuthPage({super.key});
 
   @override
-  _AuthPageState createState() => _AuthPageState();
+  AuthPageState createState() => AuthPageState();
 }
 
-class _AuthPageState extends State<AuthPage> {
+class AuthPageState extends State<AuthPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   bool obscurePassword = true;
@@ -23,11 +24,11 @@ class _AuthPageState extends State<AuthPage> {
   @override
   void initState() {
     super.initState();
-    setUpDB();
-  }
-
-  Future<void> setUpDB() async {
-    await DatabaseService().initializeDB();
+    DatabaseService().initializeDB().then((_) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
   }
 
   Future<void> signIn() async {
@@ -42,15 +43,20 @@ class _AuthPageState extends State<AuthPage> {
     showLoadingDialog();
 
     final (user, status) = await getUserByEmail(email);
-
+    if (!mounted) {
+      return;
+    }
+    
     Navigator.of(context).pop();
 
     if (status == HttpStatus.found && user != null) {
       if (isPasswordAndHashEqual(password, user.password, user.salt)) {
         final nextPage = user.isFirstLogin ? SetNewPasswordPage(user: user) : HomePage(userData: user);
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => nextPage),
-        );
+        if (mounted) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => nextPage),
+          );
+        }
       } else {
         displayErrorMessage("Incorrect password. Please try again.");
       }
@@ -78,148 +84,112 @@ class _AuthPageState extends State<AuthPage> {
 
   void displayErrorMessage(String error) {
     errorMessageBox?.remove();
-    errorMessageBox = createMessageBox(error);
-
+    errorMessageBox = createMessageBox(error, Colors.red.shade600);
     Overlay.of(context).insert(errorMessageBox!);
 
     Future.delayed(Duration(seconds: 3), () {
-      errorMessageBox?.remove();
-      errorMessageBox = null;
+      if (mounted) {
+        errorMessageBox?.remove();
+        errorMessageBox = null;
+      }
     });
-  }
-
-  OverlayEntry createMessageBox(String error) {
-    return OverlayEntry(
-      builder: (context) => Positioned(
-        top: 50,
-        left: 20,
-        right: 20,
-        child: Material(
-          color: Colors.transparent,
-          child: Container(
-            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-            decoration: BoxDecoration(
-              color: Colors.red.shade600,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              error,
-              style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
-            ),              
-          ),
-        ),
-      ),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Text(
-              "Login",
-              style: TextStyle(color: Color.fromARGB(255, 28, 117, 188), fontSize: 30, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-            Text(
-              "Please login to continue using the app.",
-              style: TextStyle(color: Colors.black, fontSize: 18),
-            ),
-          ]
-        ),
-        toolbarHeight: 100,
-      ),
+      appBar: const _AuthPageAppBar(),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            builtText("EMAIL ADDRESS"),
+            const LabelText("EMAIL ADDRESS"),
             const SizedBox(height: 10),
-            buildTextField(emailController),
+            TextController(controller: emailController),
             const SizedBox(height: 30),
-            builtText("PASSWORD"),
+            const LabelText("PASSWORD"),
             const SizedBox(height: 10),
-            buildTextField(passwordController, obscureText: obscurePassword, displayEyeIcon: true),
+            TextController(controller: passwordController, obscureText: obscurePassword, onToggleVisibility: () => setState(() => obscurePassword = !obscurePassword)),
             const SizedBox(height: 40),
-            loginButton(),
+            _LoginButton(onPressed: signIn),
             const SizedBox(height: 5),
-            forgotPasswordButton(),
+            const _ForgotPasswordButton(),
           ],
         ),
       ),
     );
   }
+}
 
-  Widget builtText(String text) {
-    return Text(
-      text,
-      style: const TextStyle(color: Color.fromARGB(255, 28, 117, 188), fontSize: 18, fontWeight: FontWeight.bold),
-    );
-  }
+class _AuthPageAppBar extends StatelessWidget implements PreferredSizeWidget {
+  const _AuthPageAppBar();
 
-  Widget buildTextField(TextEditingController controller, {bool obscureText = false, bool displayEyeIcon = false}) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      automaticallyImplyLeading: false,
+      title: const Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: TextFormField(
-              controller: controller,
-              obscureText: obscureText,
-              decoration: const InputDecoration(
-                border: InputBorder.none,
-              ),
-            ),
+          Text(
+            "Login",
+            style: TextStyle(color: Color.fromARGB(255, 28, 117, 188), fontSize: 30, fontWeight: FontWeight.bold),
           ),
-          if (displayEyeIcon) ...[
-            IconButton(
-              icon: Icon(obscurePassword ? Icons.visibility_off : Icons.visibility),
-              onPressed: () => setState(() => obscurePassword = !obscurePassword),
-            ),
-          ]
-        ]
-      )
+          SizedBox(height: 10),
+          Text(
+            "Please login to continue using the app.",
+            style: TextStyle(color: Colors.black, fontSize: 18),
+          ),
+        ],
+      ),
+      toolbarHeight: 100,
     );
   }
 
-  Widget loginButton() {
+  @override
+  Size get preferredSize => const Size.fromHeight(100);
+}
+
+class _LoginButton extends StatelessWidget {
+  final VoidCallback onPressed;
+  const _LoginButton({required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
     return Center(
       child: SizedBox(
         width: 125,
         height: 50,
         child: ElevatedButton.icon(
-          onPressed: signIn,
+          onPressed: onPressed,
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color.fromARGB(255, 28, 117, 188),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))
           ),
           icon: const Icon(Icons.login, color: Colors.white, size: 24),
           label: const Text(
             "Login",
-            style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)
+            style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
           ),
         ),
       ),
     );
   }
+}
 
-  Widget forgotPasswordButton() {
+class _ForgotPasswordButton extends StatelessWidget {
+  const _ForgotPasswordButton();
+
+  @override
+  Widget build(BuildContext context) {
     return Center(
       child: TextButton(
         onPressed: () => Navigator.of(context).pushReplacementNamed(AppRoutes.forgotPassword),
         child: const Text(
           "Forgot Password?",
-          style: TextStyle(color: Color.fromARGB(255, 28, 117, 188), fontSize: 18, fontWeight: FontWeight.bold)
+          style: TextStyle(color: Color.fromARGB(255, 28, 117, 188), fontSize: 18, fontWeight: FontWeight.bold),
         ),
       ),
     );

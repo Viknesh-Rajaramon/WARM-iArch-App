@@ -12,10 +12,11 @@ class IArchApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
       initialRoute: AppRoutes.auth,
       onGenerateRoute: AppRoutes.generateRoute,
+      onUnknownRoute: AppRoutes.unknownRoute,
     );
   }
 }

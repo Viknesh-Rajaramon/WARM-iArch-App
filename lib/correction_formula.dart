@@ -5,7 +5,7 @@ num pm25Correction(num pm25, num pm003Count, num scalingFactor, num intercept) {
   num lowCalibrated = (scalingFactor * pm003Count) + intercept;
   num calibrated = lowCalibrated < 31 ? lowCalibrated : pm25;
 
-  return calibrated < 0 ? 0 : calibrated;
+  return calibrated.clamp(0, double.infinity);
 }
 
 // https://www.airgradient.com/documentation/correction-algorithms/#pm_epa_correction
@@ -13,7 +13,11 @@ num pm25Correction(num pm25, num pm003Count, num scalingFactor, num intercept) {
 num applyCorrectionFormulaPM2(num pm25, num pm003Count, num rh, num plantowerSerial) {
   rh = rh.clamp(0, 100);
 
-  Map<String, num> plantowerFactors = scalingFactorsForCorrection[plantowerSerial]!;
+  final plantowerFactors = scalingFactorsForCorrection[plantowerSerial];
+  if (plantowerFactors == null) {
+    throw Exception("Unknown Plantower serial: $plantowerSerial");
+  }
+
   pm25 = pm25Correction(pm25, pm003Count, plantowerFactors["scalingFactor"]!, plantowerFactors["intercept"]!);
 
   if (pm25 == 0) {

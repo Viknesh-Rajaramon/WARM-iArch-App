@@ -1,6 +1,5 @@
 import "dart:async";
 import "package:flutter/material.dart";
-import "package:flutter/services.dart";
 
 import "package:warm_app/calculation.dart";
 import "package:warm_app/class.dart";
@@ -26,10 +25,10 @@ class HomePage extends StatefulWidget {
   });
 
   @override
-  _HomePageState createState() => _HomePageState();
+  HomePageState createState() => HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class HomePageState extends State<HomePage> {
   late User userData;
   String token = "";
   Map<int, String> locationIdsPlantower = {};
@@ -39,10 +38,13 @@ class _HomePageState extends State<HomePage> {
   Map<String, Map<String, num>> monitorData = {};
   String? selectedMonitor;
   num iArchValue = 0;
-  bool readingsVisible = false;
   List<num> iArchValues = [];
-  bool averageVisible = false;
   List<Revitalization> remedy = [];
+
+  final ValueNotifier<bool> readingsVisible = ValueNotifier(false);
+  final ValueNotifier<bool> averageVisible = ValueNotifier(false);
+
+  Timer? dataRefreshTimer;
 
   @override
   void initState() {
@@ -53,8 +55,19 @@ class _HomePageState extends State<HomePage> {
     getCurrentMonitorDataSafely();
   }
 
+  @override
+  void dispose() {
+    dataRefreshTimer?.cancel();
+    readingsVisible.dispose();
+    averageVisible.dispose();
+    super.dispose();
+  }
+
   Future<void> getProjectDataFromDB() async {
-    final results = await Future.wait([getTokenFromProjectId(userData.projectId), getLocationIdsAndPlantowerSerialByProjectId(userData.projectId)]);
+    final results = await Future.wait([
+      getTokenFromProjectId(userData.projectId),
+      getLocationIdsAndPlantowerSerialByProjectId(userData.projectId),
+    ]);
     if (!mounted) {
       return;
     }
@@ -63,11 +76,12 @@ class _HomePageState extends State<HomePage> {
       token = results[0] as String;
       locationIdsPlantower = results[1] as Map<int, String>;
     });
+
     DatabaseService().closeConnection();
   }
 
   void getCurrentMonitorDataSafely() {
-    Timer.periodic(const Duration(minutes: 1), (timer) => getCurrentMonitorData());
+    dataRefreshTimer = Timer.periodic(const Duration(minutes: 1), (timer) => getCurrentMonitorData());
 
     Future.doWhile(() async {
       if (token.isNotEmpty) {
@@ -117,7 +131,10 @@ class _HomePageState extends State<HomePage> {
       return;
     }
 
-    var data = await getHistoricMonitorDataByLocationId(token, monitorData[selectedMonitor]!["locationId"]!, monitorData[selectedMonitor]!["plantower"]!);
+    var monitorValues = monitorData[selectedMonitor];
+    if (monitorValues == null) return;
+
+    var data = await getHistoricMonitorDataByLocationId(token, monitorValues["locationId"]!, monitorValues["plantower"]!);
     if (!mounted) {
       return;
     }
@@ -126,24 +143,19 @@ class _HomePageState extends State<HomePage> {
   }
 
   void updateData(String monitor) {
-    if (isLoading) {
-      return;
+    if (!isLoading && monitorData.containsKey(monitor)) {
+      final monitorValues = monitorData[monitor]!;
+
+      setState(() {
+        selectedMonitor = monitor;
+        lastUpdated = monitorValues["timestamp"].toString();
+        iArchValue = calculateIArchValue(monitorValues);
+        remedy = calculateRevitalizationIArchValues(monitorValues);
+        iArchValues = [];
+      });
+
+      getHistoricMonitorDataSafely();
     }
-
-    final monitorValues = monitorData[monitor];
-    if (monitorValues == null) {
-      return;
-    }
-
-    setState(() {
-      selectedMonitor = monitor;
-      lastUpdated = monitorValues["timestamp"].toString();
-      iArchValue = calculateIArchValue(monitorValues);
-      remedy = calculateRevitalizationIArchValues(monitorValues);
-      iArchValues = [];
-    });
-
-    getHistoricMonitorDataSafely();
   }
 
   @override
@@ -153,7 +165,6 @@ class _HomePageState extends State<HomePage> {
         title: AppTitle(name: userData.firstName, email: userData.email, timestamp: lastUpdated),
         automaticallyImplyLeading: false,
         backgroundColor: const Color.fromARGB(255, 28, 117, 188),
-        systemOverlayStyle: const SystemUiOverlayStyle(systemStatusBarContrastEnforced: true),
         toolbarHeight: 120,
       ),
       body: isLoading ? loadingBar() : buildContent(),
@@ -185,70 +196,30 @@ class _HomePageState extends State<HomePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             MonitorDropdown(
-              monitors: monitorData.keys.toList(growable: false),
+              monitors: monitorData.keys.toList(),
               selectedMonitor: selectedMonitor,
               onMonitorSelected: updateData,
             ),
             const SizedBox(height: 25),
             if (selectedMonitor != null) ...[
+              const SizedBox(height: 25),
               Center(
-                child: ElevatedButton(
-                  onPressed: () => setState(() => readingsVisible = !readingsVisible),
-                  style: ButtonStyle(backgroundColor: WidgetStateProperty.all<Color>(Color.fromARGB(255, 28, 117, 188))),
-                  child: Text(
-                    readingsVisible ? "Hide Monitor Data" : "View Monitor Data",
-                    style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
+                child: _ToggleButton(
+                  label: "Monitor Data",
+                  isVisible: readingsVisible,
+                  child: MonitorData(monitorData: monitorData[selectedMonitor]!),
                 ),
               ),
-              if (readingsVisible) ...[
-                const SizedBox(height: 25),
-                MonitorData(monitorData: monitorData[selectedMonitor]!),
-              ],
               const SizedBox(height: 25),
               IArchDisplay(iArchValue: iArchValue),
               const SizedBox(height: 25),
               Center(
-                child: ElevatedButton(
-                  onPressed: () => setState(() => averageVisible = !averageVisible),
-                  style: ButtonStyle(backgroundColor: WidgetStateProperty.all<Color>(Color.fromARGB(255, 28, 117, 188))),
-                  child: Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: averageVisible ? "Hide" : "View",
-                          style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                        const TextSpan(
-                          text: " I",
-                          style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                        WidgetSpan(
-                          child: Transform.translate(
-                            offset: Offset(0.0, 5.0),
-                            child: Text(
-                              "arch",
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const TextSpan(
-                          text: " Average",
-                          style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                  ),
+                child: _ToggleButton(
+                  label: "iARCH Average",
+                  isVisible: averageVisible,
+                  child: IArchAverageTable(iArchValues: iArchValues),
                 ),
               ),
-              if (averageVisible) ...[
-                const SizedBox(height: 25),
-                IArchAverageTable(iArchValues: iArchValues),
-              ],
               const SizedBox(height: 25),
               RemediationTable(remedy: remedy),
               const SizedBox(height: 25),
@@ -256,6 +227,47 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _ToggleButton extends StatelessWidget {
+  final String label;
+  final ValueNotifier<bool> isVisible;
+  final Widget child;
+
+  const _ToggleButton({
+    required this.label,
+    required this.isVisible,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        ValueListenableBuilder<bool>(
+          valueListenable: isVisible,
+          builder: (context, visible, _) {
+            return ElevatedButton(
+              onPressed: () => isVisible.value = !visible,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromARGB(255, 28, 117, 188),
+              ),
+              child: Text(
+                "${visible ? "Hide" : "View"} $label",
+                style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            );
+          },
+        ),
+        ValueListenableBuilder<bool>(
+          valueListenable: isVisible,
+          builder: (context, visible, _) {
+            return visible ? child : const SizedBox.shrink();
+          },
+        ),
+      ],
     );
   }
 }

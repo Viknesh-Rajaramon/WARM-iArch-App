@@ -1,5 +1,6 @@
 import "dart:io";
 import "package:dbcrypt/dbcrypt.dart";
+import "package:flutter/foundation.dart";
 
 import "package:warm_app/db/database.dart";
 
@@ -30,32 +31,34 @@ class User {
 }
 
 Future<(User?, int)> getUserByEmail(String email) async {
-  if (email == "") {
+  if (email.isEmpty) {
     return (null, HttpStatus.badRequest);
   }
 
-  return await Future(() async {
-    try {
-      final result = await DatabaseService().conn.execute("SELECT * FROM users WHERE email = :email LIMIT 1", {"email": email});
+  try {
+    final result = await DatabaseService().conn.execute("SELECT * FROM users WHERE email = :email LIMIT 1", {"email": email});
 
-      if (result.numOfRows == 0) {
-        return (null, HttpStatus.notFound);
-      }
-
-      return (User.fromJson(result.rows.first.assoc()), HttpStatus.found);
-    } catch (_) {
-      return (null, HttpStatus.internalServerError);
+    if (result.numOfRows == 0) {
+      return (null, HttpStatus.notFound);
     }
-  });
+
+    return (User.fromJson(result.rows.first.assoc()), HttpStatus.found);
+  } catch (e) {
+    debugPrint("Database error in getUserByEmail(): $e");
+    return (null, HttpStatus.internalServerError);
+  }
 }
 
-bool convertStringToBool(String value) {
-  int? val = int.tryParse(value);
-  if (val == null) {
-    return true;
+bool convertStringToBool(dynamic value) {
+  if (value is bool) {
+    return value;
   }
   
-  return val == 0 ? false : true;
+  if (value is int) {
+    return value != 0;
+  }
+
+  return value.toString().trim() == "1";
 }
 
 bool isPasswordAndHashEqual(String password, String hashedPassword, String salt) {
@@ -63,24 +66,27 @@ bool isPasswordAndHashEqual(String password, String hashedPassword, String salt)
 }
 
 Future<int> updateUserPassword(String uuid, String newPassword) async {
-  if (uuid == "" || newPassword == "") {
+  if (uuid.isEmpty || newPassword.isEmpty) {
     return HttpStatus.badRequest;
   }
 
-  return await Future(() async {
-    String salt = DBCrypt().gensaltWithRounds(14);
-    String hashedPassword = DBCrypt().hashpw(newPassword, salt).substring(salt.length);
+  final data = await compute(getSaltAndHashedPassword, newPassword);
+  String salt = data.$1;
+  String hashedPassword = data.$2;
 
-    try {
-      final result = await DatabaseService().conn.execute("UPDATE users SET password = :hashedPassword, salt = :salt, is_first_login = FALSE WHERE uuid = :uuid", {"hashedPassword": hashedPassword, "salt": salt, "uuid": uuid});
+  try {
+    final result = await DatabaseService().conn.execute("UPDATE users SET password = :hashedPassword, salt = :salt, is_first_login = FALSE WHERE uuid = :uuid", {"hashedPassword": hashedPassword, "salt": salt, "uuid": uuid});
 
-      if (result.affectedRows == BigInt.zero) {
-        return HttpStatus.noContent;
-      }
+    return result.affectedRows == BigInt.zero ? HttpStatus.noContent : HttpStatus.accepted;
+  } catch (e) {
+    debugPrint("Database error in updateUserPassword(): $e");
+    return HttpStatus.internalServerError;
+  }
+}
 
-      return HttpStatus.accepted;
-    } catch (_) {
-      return HttpStatus.internalServerError;
-    }
-  });
+(String, String) getSaltAndHashedPassword(String newPassword) {
+  String salt = DBCrypt().gensaltWithRounds(10);
+  String hashedPassword = DBCrypt().hashpw(newPassword, salt).substring(salt.length);
+
+  return (salt, hashedPassword);
 }
