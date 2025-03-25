@@ -149,8 +149,10 @@ class RemediationTableCellState extends State<RemediationTable> {
       builder: (context) {
         return AlertDialog(
           title: const Text("Steps to implement Remediation Technique"),
+          titleTextStyle: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
           content: _buildPopupContent(remediationStep),
           actions: [_buildCloseButton()],
+          scrollable: true,
         );
       },
     );

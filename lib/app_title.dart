@@ -18,42 +18,40 @@ class AppTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     final formattedTime = DateFormat("MMM d, hh:mm:ss a").format(DateTime.fromMillisecondsSinceEpoch(int.parse(timestamp)));
 
-    return SizedBox(
-      width: double.infinity,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                name,
-                style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              name,
+              style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            Text(
+              email,
+              style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 20),
+            Text.rich(
+              TextSpan(
+                children: [
+                  const TextSpan(
+                    text: "Last Updated: ",
+                    style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
+                  ),
+                  TextSpan(
+                    text: formattedTime,
+                    style: const TextStyle(color: Colors.white, fontSize: 15),
+                  ),
+                ],
               ),
-              Text(
-                email,
-                style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
-              ),
-              const SizedBox(height: 20),
-              Text.rich(
-                TextSpan(
-                  children: [
-                    const TextSpan(
-                      text: "Last Updated: ",
-                      style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
-                    ),
-                    TextSpan(
-                      text: formattedTime,
-                      style: const TextStyle(color: Colors.white, fontSize: 15),
-                    ),
-                  ],
-                ),
-              ),
-            ]
-          ),
-          const _LogoutButton(),
-        ]
-      )
+            )
+          ]
+        ),
+        const _LogoutButton(),
+      ]
     );
   }
 }
