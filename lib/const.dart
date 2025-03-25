@@ -6,7 +6,7 @@ import "package:warm_app/class.dart";
 const List<Map<String, String>> displayNames = [
   {"reading": "PM2.5", "displayName": "PM\u2082\u002e\u2085", "unit": "µg/m³", "decimalPoint": "1", "info": "PM 2.5 level (PM - Particulate Matter)"},
   {"reading": "PM10", "displayName": "PM\u2081\u2080", "unit": "µg/m³", "decimalPoint": "1", "info": "PM 10 level (PM - Particulate Matter)"},
-  {"reading": "TVOC", "displayName": "TVOC", "unit": "ppm", "decimalPoint": "3", "info": "Total Volatile Organic Compound level in ppm (parts per million)"},
+  {"reading": "TVOCppb", "displayName": "TVOC", "unit": "ppb", "decimalPoint": "0", "info": "Total Volatile Organic Compound level in ppb (parts per billion)"},
   {"reading": "CO2", "displayName": "CO\u2082", "unit": "ppm", "decimalPoint": "0", "info": "CO\u2082 level in ppm (parts per million)"},
   {"reading": "RH", "displayName": "RH", "unit": "%", "decimalPoint": "0", "info": "Relative Humidity in percent"},
   {"reading": "T", "displayName": "T", "unit": "\u2070F", "decimalPoint": "2", "info": "Temperature in degrees Farenheit"},
@@ -81,6 +81,11 @@ const Map<int, BreakpointValues> breakpointValuesAT = {
   8: BreakpointValues(351, 400, 105, 110, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
   9: BreakpointValues(401, 450, 110, 115, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
   10: BreakpointValues(451, 500, 115, 120, "very unhealthy", Color.fromRGBO(255, 0, 0, 1.0)),
+};
+
+// Map of variables to calculate I-values
+const Map<String, String> alternateNamesForColor = {
+  "TVOCppb": "TVOC",
 };
 
 // Map of variables to calculate I-values

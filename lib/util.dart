@@ -21,9 +21,15 @@ List<SensorDisplayUnit> getDisplayData(Map<String, num> data) {
 }
 
 // Get the color code for sensor reading
-Color getColor(String name, num rawInput) => iValues.containsKey(name)
+Color getColor(String name, num rawInput) {
+  if (alternateNamesForColor.containsKey(name)) {
+    return getBreakpointValues(alternateNamesForColor[name]!, rawInput).color;
+  }
+
+  return iValues.containsKey(name)
   ? getBreakpointValues(name, rawInput).color
   : const Color.fromRGBO(255, 255, 255, 1.0);
+}
 
 Color getIArchColor(num iArchValue) {
   IArchScaleColorCode iValue = iArchColorCodes.entries.map((e) => e.value).firstWhere((iValue) => iValue.iLow <= iArchValue && iArchValue <= iValue.iHigh, orElse: () => IArchScaleColorCode(0, 0, const Color.fromRGBO(255, 255, 255, 1.0)));
@@ -44,15 +50,11 @@ BreakpointValues getBreakpointValues(String name, num rawInput) {
 
 num convertCelciusToFarenheit(num temp) => num.parse(temp.toStringAsFixed(1)) * 1.8 + 32;
 
-num convertPPBToPPM(num value) => value * 0.001;
+num convertPPBTomicrogPerm3(num value) => value * 2;
 
 void applyCorrectionsToRawData(Map<String, num> monitorData) {
-  if (!monitorData.containsKey("T") || !monitorData.containsKey("TVOC") || !monitorData.containsKey("PM2.5")) {
-    throw Exception("Missing essential sensor readings in monitorData");
-  }
-
   monitorData["T"] = convertCelciusToFarenheit(monitorData["T"]!);
-  monitorData["TVOC"] = convertPPBToPPM(monitorData["TVOC"]!);
+  monitorData["TVOC"] = convertPPBTomicrogPerm3(monitorData["TVOCppb"]!);
 
   // Apply EPA Correction Formula for PM 2.5
   monitorData["PM2.5"] = applyCorrectionFormulaPM2(monitorData["PM2.5"]!, monitorData["pm003Count"]!, monitorData["RH"]!, monitorData["plantower"]!);

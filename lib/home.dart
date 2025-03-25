@@ -202,7 +202,6 @@ class HomePageState extends State<HomePage> {
             ),
             const SizedBox(height: 25),
             if (selectedMonitor != null) ...[
-              const SizedBox(height: 25),
               Center(
                 child: _ToggleButton(
                   label: "Monitor Data",
@@ -259,6 +258,12 @@ class _ToggleButton extends StatelessWidget {
                 style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
               ),
             );
+          },
+        ),
+        ValueListenableBuilder<bool>(
+          valueListenable: isVisible,
+          builder: (context, visible, _) {
+            return visible ? const SizedBox(height: 25) : const SizedBox.shrink();
           },
         ),
         ValueListenableBuilder<bool>(
