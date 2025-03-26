@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'package:warm_app/auth.dart';
-import 'package:warm_app/faq_page.dart';
-import 'package:warm_app/forgot_password.dart';
+import 'package:warm_app/pages/auth.dart';
+import 'package:warm_app/pages/faq_page.dart';
+import 'package:warm_app/pages/forgot_password.dart';
 
 class AppRoutes {
   static const String auth = "/auth";

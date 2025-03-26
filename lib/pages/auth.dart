@@ -1,12 +1,12 @@
 import "dart:io";
 import "package:flutter/material.dart";
 
-import "package:warm_app/home.dart";
-import "package:warm_app/change_password.dart";
+import "package:warm_app/pages/home.dart";
+import "package:warm_app/pages/change_password.dart";
 import "package:warm_app/db/database.dart";
 import "package:warm_app/db/user.dart";
-import "package:warm_app/routes.dart";
-import "package:warm_app/components.dart";
+import "package:warm_app/components/routes.dart";
+import "package:warm_app/components/components.dart";
 
 class AuthPage extends StatefulWidget {
   const AuthPage({super.key});

@@ -1,6 +1,6 @@
 import "package:flutter/material.dart";
 
-import "package:warm_app/faq_data.dart";
+import "package:warm_app/backend/faq_data.dart";
 
 class FAQPage extends StatelessWidget {
   const FAQPage({super.key});

@@ -1,9 +1,9 @@
 import "package:collection/collection.dart";
 import "package:flutter/rendering.dart";
 
-import "package:warm_app/class.dart";
-import "package:warm_app/const.dart";
-import "package:warm_app/correction_formula.dart";
+import "package:warm_app/backend/class.dart";
+import "package:warm_app/backend/const.dart";
+import "package:warm_app/backend/correction_formula.dart";
 
 // Get the display data and the unit for sensor readings
 List<SensorDisplayUnit> getDisplayData(Map<String, num> data) {

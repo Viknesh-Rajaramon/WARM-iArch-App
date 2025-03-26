@@ -1,9 +1,9 @@
 import "package:collection/collection.dart";
 import "dart:math";
 
-import "package:warm_app/class.dart";
-import "package:warm_app/util.dart";
-import "package:warm_app/const.dart";
+import "package:warm_app/backend/class.dart";
+import "package:warm_app/backend/util.dart";
+import "package:warm_app/backend/const.dart";
 
 // Calculate the Apparent Temperature (from Formula)
 num calculateApparentTemperature(num T, num rh) =>

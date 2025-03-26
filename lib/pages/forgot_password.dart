@@ -2,8 +2,8 @@ import "dart:io";
 import "package:flutter/material.dart";
 
 import "package:warm_app/db/user.dart";
-import "package:warm_app/change_password.dart";
-import "package:warm_app/components.dart";
+import "package:warm_app/pages/change_password.dart";
+import "package:warm_app/components/components.dart";
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
