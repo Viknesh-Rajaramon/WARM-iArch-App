@@ -77,7 +77,7 @@ class HomePageState extends State<HomePage> {
       locationIdsPlantower = results[1] as Map<int, String>;
     });
 
-    DatabaseService().closeConnection();
+    DatabaseService().close();
   }
 
   void getCurrentMonitorDataSafely() {
