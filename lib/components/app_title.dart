@@ -1,6 +1,6 @@
 import "package:flutter/material.dart";
 import "package:intl/intl.dart";
-import "package:warm_app/routes.dart";
+import "package:warm_app/components/routes.dart";
 
 class AppTitle extends StatelessWidget {
   final String name;

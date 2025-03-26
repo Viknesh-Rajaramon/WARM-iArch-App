@@ -3,9 +3,9 @@ import "dart:io";
 import "package:flutter/foundation.dart";
 import "package:http/http.dart";
 
-import "package:warm_app/util.dart";
-import "package:warm_app/const.dart";
-import "package:warm_app/calculation.dart";
+import "package:warm_app/backend/util.dart";
+import "package:warm_app/backend/const.dart";
+import "package:warm_app/backend/calculation.dart";
 
 const apiCurrentString = "https://api.airgradient.com/public/api/v1/locations/measures/current?token={token}";
 const apiHistoricString = "https://api.airgradient.com/public/api/v1/locations/{locationId}/measures/raw?token={token}&from={from}&to={to}";

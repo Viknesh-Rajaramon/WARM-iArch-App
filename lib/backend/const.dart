@@ -1,6 +1,6 @@
 import "package:flutter/rendering.dart";
 
-import "package:warm_app/class.dart";
+import "package:warm_app/backend/class.dart";
 
 // Mapping different sensor readings to their display names and respective units
 const List<Map<String, String>> displayNames = [

@@ -1,15 +1,15 @@
 import "dart:async";
 import "package:flutter/material.dart";
 
-import "package:warm_app/calculation.dart";
-import "package:warm_app/class.dart";
-import "package:warm_app/api.dart";
-import "package:warm_app/app_title.dart";
-import "package:warm_app/monitor_dropdown.dart";
-import "package:warm_app/iarch_display.dart";
-import "package:warm_app/monitor_data.dart";
-import "package:warm_app/remediation.dart";
-import "package:warm_app/iarch_average_display.dart";
+import "package:warm_app/backend/calculation.dart";
+import "package:warm_app/backend/class.dart";
+import "package:warm_app/backend/api.dart";
+import "package:warm_app/components/app_title.dart";
+import "package:warm_app/components/monitor_dropdown.dart";
+import "package:warm_app/components/iarch_display.dart";
+import "package:warm_app/components/monitor_data.dart";
+import "package:warm_app/components/remediation.dart";
+import "package:warm_app/components/iarch_average_display.dart";
 
 import "package:warm_app/db/database.dart";
 import "package:warm_app/db/project.dart";

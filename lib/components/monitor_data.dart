@@ -1,7 +1,7 @@
 import "package:flutter/material.dart";
-import "package:warm_app/class.dart";
+import "package:warm_app/backend/class.dart";
 
-import "package:warm_app/util.dart";
+import "package:warm_app/backend/util.dart";
 
 class MonitorData extends StatelessWidget {
   final Map<String, num> monitorData;
