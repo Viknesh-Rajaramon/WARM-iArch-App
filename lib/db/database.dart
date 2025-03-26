@@ -4,14 +4,16 @@ import "package:flutter_dotenv/flutter_dotenv.dart";
 
 class DatabaseService {
   static final DatabaseService _instance = DatabaseService._internal();
-  MySQLConnection? connection;
+  MySQLConnection? _connection;
 
   factory DatabaseService() => _instance;
 
-  DatabaseService._internal();
+  DatabaseService._internal() {
+    _connect();
+  }
 
-  Future<void> initializeDB() async {
-    if (connection != null && connection!.connected) {
+  Future<void> _connect() async {
+    if (_connection != null && _connection!.connected) {
       debugPrint("Database already connected.");
       return;
     }
@@ -19,7 +21,7 @@ class DatabaseService {
     try {
       await dotenv.load(fileName: ".env");
 
-      connection = await MySQLConnection.createConnection(
+      _connection = await MySQLConnection.createConnection(
         host: dotenv.env["DB_HOST"] ?? "localhost",
         port: int.tryParse(dotenv.env["DB_PORT"] ?? "3306") ?? 3306,
         userName: dotenv.env["DB_USER"] ?? "",
@@ -28,26 +30,38 @@ class DatabaseService {
         collation: dotenv.env["DB_COLLATION"] ?? "utf8mb4_general_ci",
       );
 
-      await connection!.connect(timeoutMs: 20000);
+      await _connection?.connect(timeoutMs: 20000);
       debugPrint("Database connected successfully.");
     } catch (e) {
       debugPrint("Database connection failed: $e");
-      connection = null;
+      _connection = null;
     }
   }
 
   MySQLConnection get conn {
-    if (connection == null || !connection!.connected) {
+    if (_connection == null || !_connection!.connected) {
       throw Exception("Database connection is not initialized. Call initializeDB() first.");
     }
-    return connection!;
+    return _connection!;
   }
 
-  Future<void> closeConnection() async {
-    if (connection != null && connection!.connected) {
-      await connection!.close();
+  Future<void> close() async {
+    if (_connection != null && _connection!.connected) {
+      await _connection!.close();
       debugPrint("Database connection closed.");
     }
-    connection = null;
+    _connection = null;
+  }
+
+  Future<IResultSet> execute(String query, {Map<String, dynamic>? params}) async {
+    if (_connection == null || !_connection!.connected) {
+      await _connect();
+    }
+
+    if (!_connection!.connected) {
+      throw Exception('Could not connect to the database');
+    }
+    
+    return _connection!.execute(query, params);
   }
 }

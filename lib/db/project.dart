@@ -25,7 +25,10 @@ Future<(Project?, int)> getProjectById(String projectId) async {
   }
 
   try {
-    final result = await DatabaseService().conn.execute("SELECT * FROM projects WHERE id = :id LIMIT 1", {"id": projectId});
+    String query = "SELECT * FROM projects WHERE id = :id LIMIT 1";
+    Map<String, dynamic> params = {"id": projectId};
+
+    final result = await DatabaseService().execute(query, params: params);
 
     if (result.numOfRows == 0) {
       return (null, HttpStatus.notFound);

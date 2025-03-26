@@ -29,8 +29,11 @@ Future<(List<Monitor>, int)> getMonitorsByProjectId(String projectId) async {
     return (<Monitor>[], HttpStatus.badRequest);
   }
 
-  try { 
-    final result = await DatabaseService().conn.execute("SELECT * FROM monitors WHERE project_id = :projectId", {"projectId": projectId});
+  try {
+    String query = "SELECT * FROM monitors WHERE project_id = :projectId";
+    Map<String, dynamic> params = {"projectId": projectId};
+
+    final result = await DatabaseService().execute(query, params: params);
 
     if (result.numOfRows == 0) {
       return (<Monitor>[], HttpStatus.notFound);

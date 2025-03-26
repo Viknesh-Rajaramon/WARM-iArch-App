@@ -7,6 +7,7 @@ import "package:warm_app/db/database.dart";
 import "package:warm_app/db/user.dart";
 import "package:warm_app/components/routes.dart";
 import "package:warm_app/components/components.dart";
+import "package:warm_app/backend/password.dart";
 
 class AuthPage extends StatefulWidget {
   const AuthPage({super.key});
@@ -24,11 +25,7 @@ class AuthPageState extends State<AuthPage> {
   @override
   void initState() {
     super.initState();
-    DatabaseService().initializeDB().then((_) {
-      if (mounted) {
-        setState(() {});
-      }
-    });
+    DatabaseService();
   }
 
   Future<void> signIn() async {
