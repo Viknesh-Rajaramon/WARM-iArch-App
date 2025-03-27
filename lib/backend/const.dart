@@ -178,3 +178,5 @@ const List<Map<String, String>> timeFrameForAverage = [
   {"timeframe": "6-hour", "numReadings": "360"},
   {"timeframe": "12-hour", "numReadings": "720"},
 ];
+
+const int maxReadings = 720;

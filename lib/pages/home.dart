@@ -38,7 +38,7 @@ class HomePageState extends State<HomePage> {
   Map<String, Map<String, num>> monitorData = {};
   String? selectedMonitor;
   num iArchValue = 0;
-  List<num> iArchValues = [];
+  Map<String, List<num>> monitorIArchValues = {};
   List<Revitalization> remedy = [];
 
   final ValueNotifier<bool> readingsVisible = ValueNotifier(false);
@@ -134,12 +134,12 @@ class HomePageState extends State<HomePage> {
     var monitorValues = monitorData[selectedMonitor];
     if (monitorValues == null) return;
 
-    var data = await getHistoricMonitorDataByLocationId(token, monitorValues["locationId"]!, monitorValues["plantower"]!);
+    var data = await getHistoricMonitorDataByLocationId(token, monitorIArchValues[selectedMonitor], monitorValues);
     if (!mounted) {
       return;
     }
 
-    setState(() => iArchValues = data);
+    setState(() => monitorIArchValues[selectedMonitor!] = data);
   }
 
   void updateData(String monitor) {
@@ -151,7 +151,6 @@ class HomePageState extends State<HomePage> {
         lastUpdated = monitorValues["timestamp"].toString();
         iArchValue = calculateIArchValue(monitorValues);
         remedy = calculateRevitalizationIArchValues(monitorValues);
-        iArchValues = [];
       });
 
       getHistoricMonitorDataSafely();
@@ -216,7 +215,7 @@ class HomePageState extends State<HomePage> {
                 child: _ToggleButton(
                   label: "iARCH Average",
                   isVisible: averageVisible,
-                  child: IArchAverageTable(iArchValues: iArchValues),
+                  child: IArchAverageTable(iArchValues: monitorIArchValues[selectedMonitor!] ?? []),
                 ),
               ),
               const SizedBox(height: 25),

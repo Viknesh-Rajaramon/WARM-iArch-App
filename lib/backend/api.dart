@@ -63,7 +63,14 @@ Map<String, Map<String, num>> getProcessedCurrentMonitorData((String responseBod
   return monitorData;
 }
 
-Future<List<num>> getHistoricMonitorDataByLocationId(String token, num locationId, num plantowerSerial) async {
+Future<List<num>> getHistoricMonitorDataByLocationId(String token, List<num>? iArchValues, Map<String, num> monitorValues) async {
+  if (iArchValues != null) {
+    return await compute(addRecentData, (iArchValues, monitorValues));
+  }
+
+  num locationId = monitorValues["locationId"]!;
+  num plantowerSerial = monitorValues["plantower"]!;
+  
   String uri = apiHistoricString.replaceAll("{locationId}", locationId.toString()).replaceAll("{token}", token);
   var (from, to) = getfromAndToTimestamp();
   uri = uri.replaceAll("{from}", from).replaceAll("{to}", to);
@@ -80,6 +87,15 @@ Future<List<num>> getHistoricMonitorDataByLocationId(String token, num locationI
     debugPrint("Error fetching data: $error");
     return [];
   }
+}
+
+List<num> addRecentData((List<num> iArchValues, Map<String, num> monitorValues) data) {
+  final iArchValues = data.$1;
+  final monitorValues = data.$2;
+
+  iArchValues.insert(0, calculateIArchValue(monitorValues));
+  iArchValues.removeLast();
+  return iArchValues;
 }
 
 List<num> getProcessedHistoricMonitorData((String responseBody, num plantowerSerial) data) {
@@ -106,5 +122,5 @@ List<num> getProcessedHistoricMonitorData((String responseBody, num plantowerSer
       debugPrint("Error processing monitor data: $e");
       return 0;
     }
-  }).toList();
+  }).toList().sublist(0, maxReadings);
 }
