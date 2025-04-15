@@ -50,7 +50,7 @@ class RemediationTableCellState extends State<RemediationTable> {
           DataColumn(label: _buildHeaderText("Remediation Technique")),
           DataColumn(label: _buildHeaderText("New I", subscript: "arch", suffix: " Number"), columnWidth: FixedColumnWidth(101)),
         ],
-        rows: widget.remedy.map(_buildDataRow).toList(),
+        rows: sortedRemedy.map(_buildDataRow).toList(),
         columnSpacing: 15,
         dataRowMinHeight: 70,
         dataRowMaxHeight: double.infinity,
