@@ -48,7 +48,7 @@ BreakpointValues getBreakpointValues(String name, num rawInput) {
   );
 }
 
-num convertCelciusToFarenheit(num temp) => num.parse(temp.toStringAsFixed(1)) * 1.8 + 32;
+num convertCelciusToFarenheit(num temp) => temp * 1.8 + 32;
 
 num convertPPBTomicrogPerm3(num value) => value * 2;
 
