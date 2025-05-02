@@ -31,7 +31,7 @@ class HomePage extends StatefulWidget {
 class HomePageState extends State<HomePage> {
   late User userData;
   String token = "";
-  Map<int, String> locationIdsPlantower = {};
+  List<int> locationIds = [];
   String lastUpdated = DateTime.now().millisecondsSinceEpoch.toString();
 
   bool isLoading = true;
@@ -66,7 +66,7 @@ class HomePageState extends State<HomePage> {
   Future<void> getProjectDataFromDB() async {
     final results = await Future.wait([
       getTokenFromProjectId(userData.projectId),
-      getLocationIdsAndPlantowerSerialByProjectId(userData.projectId),
+      getLocationIdsByProjectId(userData.projectId),
     ]);
     if (!mounted) {
       return;
@@ -74,7 +74,7 @@ class HomePageState extends State<HomePage> {
 
     setState(() {
       token = results[0] as String;
-      locationIdsPlantower = results[1] as Map<int, String>;
+      locationIds = results[1] as List<int>;
     });
 
     DatabaseService().close();
@@ -99,7 +99,7 @@ class HomePageState extends State<HomePage> {
       return;
     }
 
-    var data = await getCurrentMonitorDataFromAllLocations(token, locationIdsPlantower);
+    var data = await getCurrentMonitorDataFromAllLocations(token, locationIds);
     if (!mounted) {
       return;
     }

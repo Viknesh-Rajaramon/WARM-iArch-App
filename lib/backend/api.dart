@@ -10,7 +10,7 @@ import "package:warm_app/backend/calculation.dart";
 const apiCurrentString = "https://api.airgradient.com/public/api/v1/locations/measures/current?token={token}";
 const apiHistoricString = "https://api.airgradient.com/public/api/v1/locations/{locationId}/measures/raw?token={token}&from={from}&to={to}";
 
-Future<Map<String, Map<String, num>>> getCurrentMonitorDataFromAllLocations(String token, Map<int, String> locationIds) async {
+Future<Map<String, Map<String, num>>> getCurrentMonitorDataFromAllLocations(String token, List<int> locationIds) async {
   String uri = apiCurrentString.replaceAll("{token}", token);
 
   try {
@@ -27,7 +27,7 @@ Future<Map<String, Map<String, num>>> getCurrentMonitorDataFromAllLocations(Stri
   }
 }
 
-Map<String, Map<String, num>> getProcessedCurrentMonitorData((String responseBody, Map<int, String> locationIds) data) {
+Map<String, Map<String, num>> getProcessedCurrentMonitorData((String responseBody, List<int> locationIds) data) {
   final responseBody = data.$1;
   final locationIds = data.$2;
   
@@ -39,16 +39,14 @@ Map<String, Map<String, num>> getProcessedCurrentMonitorData((String responseBod
       final int locationId = monitor["locationId"];
       final String locationName = monitor["locationName"];
 
-      if (locationIds.containsKey(locationId)) {
+      if (locationIds.contains(locationId)) {
         monitorData[locationName] = {
-          "PM2.5": monitor["pm02"] ?? 0,
-          "PM10": monitor["pm10"] ?? 0,
+          "PM2.5": monitor["pm02_corrected"] ?? 0,
+          "PM10": monitor["pm10_corrected"] ?? 0,
           "TVOCppb": monitor["tvoc"] ?? 0,
           "CO2": monitor["rco2"] ?? 0,
           "RH": monitor["rhum"] ?? 0,
           "T": monitor["atmp"] ?? 0,
-          "pm003Count": monitor["pm003Count"] ?? 0,
-          "plantower": convertPTSerialToNum(locationIds[locationId] ?? defaultPTSerial),
           "timestamp": DateTime.parse(monitor["timestamp"]!).millisecondsSinceEpoch,
           "locationId": locationId,
         };
@@ -69,7 +67,6 @@ Future<List<num>> getHistoricMonitorDataByLocationId(String token, List<num>? iA
   }
 
   num locationId = monitorValues["locationId"]!;
-  num plantowerSerial = monitorValues["plantower"]!;
   
   String uri = apiHistoricString.replaceAll("{locationId}", locationId.toString()).replaceAll("{token}", token);
   var (from, to) = getfromAndToTimestamp();
@@ -79,7 +76,7 @@ Future<List<num>> getHistoricMonitorDataByLocationId(String token, List<num>? iA
     final response = await get(Uri.parse(uri));
 
     if (response.statusCode == HttpStatus.ok) {
-      return await compute(getProcessedHistoricMonitorData, (response.body, plantowerSerial));
+      return await compute(getProcessedHistoricMonitorData, (response.body));
     } else {
       throw HttpException("Failed to load data: ${response.statusCode}");
     }
@@ -98,22 +95,17 @@ List<num> addRecentData((List<num> iArchValues, Map<String, num> monitorValues) 
   return iArchValues;
 }
 
-List<num> getProcessedHistoricMonitorData((String responseBody, num plantowerSerial) data) {
-  final responseBody = data.$1;
-  final plantowerSerial = data.$2;
-
+List<num> getProcessedHistoricMonitorData(String responseBody) {
   List<dynamic> monitors = json.decode(responseBody);
   return monitors.map((monitor) {
     try {
       Map<String, num> data = {
-        "PM2.5": monitor["pm02"] ?? 0,
-        "PM10": monitor["pm10"] ?? 0,
+        "PM2.5": monitor["pm02_corrected"] ?? 0,
+        "PM10": monitor["pm10_corrected"] ?? 0,
         "TVOCppb": monitor["tvoc"] ?? 0,
         "CO2": monitor["rco2"] ?? 0,
         "RH": monitor["rhum"] ?? 0,
         "T": monitor["atmp"] ?? 0,
-        "pm003Count": monitor["pm003Count"] ?? 0,
-        "plantower": plantowerSerial,
       };
 
       applyCorrectionsToRawData(data);
@@ -124,3 +116,4 @@ List<num> getProcessedHistoricMonitorData((String responseBody, num plantowerSer
     }
   }).toList().sublist(0, maxReadings);
 }
+

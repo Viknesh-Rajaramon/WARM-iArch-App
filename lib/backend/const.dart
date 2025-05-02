@@ -163,15 +163,6 @@ const Map<String, List<String>> remediationSteps = {
   ],
 };
 
-const Map<num, Map<String, num>> scalingFactorsForCorrection = {
-  20231030: {"scalingFactor": 0.02838, "intercept":	0},
-  20231218: {"scalingFactor": 0.03525, "intercept":	0},
-  20240104: {"scalingFactor": 0.02896, "intercept":	0},
-  20240826: {"scalingFactor": 0.03863, "intercept":	0},
-};
-
-const String defaultPTSerial = "2023-103000000";
-
 const List<Map<String, String>> timeFrameForAverage = [
   {"timeframe": "1-hour", "numReadings": "60"},
   {"timeframe": "3-hour", "numReadings": "180"},
