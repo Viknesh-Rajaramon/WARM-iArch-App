@@ -3,7 +3,6 @@ import "package:flutter/rendering.dart";
 
 import "package:warm_app/backend/class.dart";
 import "package:warm_app/backend/const.dart";
-import "package:warm_app/backend/correction_formula.dart";
 
 // Get the display data and the unit for sensor readings
 List<SensorDisplayUnit> getDisplayData(Map<String, num> data) {
@@ -32,7 +31,10 @@ Color getColor(String name, num rawInput) {
 }
 
 Color getIArchColor(num iArchValue) {
-  IArchScaleColorCode iValue = iArchColorCodes.entries.map((e) => e.value).firstWhere((iValue) => iValue.iLow <= iArchValue && iArchValue <= iValue.iHigh, orElse: () => IArchScaleColorCode(0, 0, const Color.fromRGBO(255, 255, 255, 1.0)));
+  IArchScaleColorCode iValue = iArchColorCodes.entries.map((e) => e.value).firstWhere(
+    (iValue) => iValue.iLow <= iArchValue && iArchValue <= iValue.iHigh,
+    orElse: () => iArchColorCodes[10]!
+  );
   return iValue.color;
 }
 
@@ -48,25 +50,13 @@ BreakpointValues getBreakpointValues(String name, num rawInput) {
   );
 }
 
-num convertCelciusToFarenheit(num temp) => temp * 1.8 + 32;
+num convertCelciusToFarenheit(num temp) => num.parse(temp.toStringAsFixed(1)) * 1.8 + 32;
 
 num convertPPBTomicrogPerm3(num value) => value * 2;
 
 void applyCorrectionsToRawData(Map<String, num> monitorData) {
   monitorData["T"] = convertCelciusToFarenheit(monitorData["T"]!);
   monitorData["TVOC"] = convertPPBTomicrogPerm3(monitorData["TVOCppb"]!);
-
-  // Apply EPA Correction Formula for PM 2.5
-  monitorData["PM2.5"] = applyCorrectionFormulaPM2(monitorData["PM2.5"]!, monitorData["pm003Count"]!, monitorData["RH"]!, monitorData["plantower"]!);
-}
-
-num convertPTSerialToNum(String ptSerial) {
-  final cleanedSerial = ptSerial.replaceAll("-", "");
-  if (cleanedSerial.length < 8) {
-    throw ArgumentError("Invalid Plantower serial: $ptSerial");
-  }
-
-  return int.parse(cleanedSerial.substring(0, 8));
 }
 
 num getAverageIArchValue(List<num> iArchValues, int numReadings) {
