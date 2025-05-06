@@ -31,6 +31,10 @@ Color getColor(String name, num rawInput) {
 }
 
 Color getIArchColor(num iArchValue) {
+  if (iArchValue < 0) {
+    return Color.fromRGBO(255, 255, 255, 1.0);
+  }
+
   IArchScaleColorCode iValue = iArchColorCodes.entries.map((e) => e.value).firstWhere(
     (iValue) => iValue.iLow <= iArchValue && iArchValue <= iValue.iHigh,
     orElse: () => iArchColorCodes[10]!
