@@ -27,7 +27,7 @@ Future<(List<Monitor>, int)> getMonitorsByProjectId(String projectId) async {
   }
 
   try {
-    String query = "SELECT * FROM monitors WHERE project_id = :projectId";
+    String query = "SELECT * FROM monitors WHERE project_id = :projectId AND is_active = TRUE";
     Map<String, dynamic> params = {"projectId": projectId};
 
     final result = await DatabaseService().execute(query, params: params);
