@@ -2,6 +2,7 @@ import "dart:convert";
 import "dart:io";
 import "package:flutter/foundation.dart";
 import "package:http/http.dart";
+import "dart:math";
 
 import "package:warm_app/backend/util.dart";
 import "package:warm_app/backend/const.dart";
@@ -97,6 +98,7 @@ List<num> addRecentData((List<num> iArchValues, Map<String, num> monitorValues) 
 
 List<num> getProcessedHistoricMonitorData(String responseBody) {
   List<dynamic> monitors = json.decode(responseBody);
+  
   return monitors.map((monitor) {
     try {
       Map<String, num> data = {
@@ -114,6 +116,5 @@ List<num> getProcessedHistoricMonitorData(String responseBody) {
       debugPrint("Error processing monitor data: $e");
       return 0;
     }
-  }).toList().sublist(0, maxReadings);
+  }).toList().sublist(0, min(monitors.length, maxReadings));
 }
-
