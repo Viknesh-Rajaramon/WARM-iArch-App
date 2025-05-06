@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS users (
   password VARCHAR(100) NOT NULL,
   salt VARCHAR(100) NOT NULL,
   project_id TEXT NOT NULL,
+  is_first_login BOOLEAN DEFAULT TRUE,
   SHARD KEY (email),
   UNIQUE KEY (email) USING HASH
 );
@@ -22,7 +23,7 @@ CREATE TABLE IF NOT EXISTS monitors (
   serial_no VARCHAR(13) NOT NULL,
   location_id BIGINT NOT NULL,
   name VARCHAR(50) NOT NULL,
-  plantower_serial VARCHAR(100) DEFAULT NULL,
   project_id TEXT DEFAULT NULL,
+  is_active BOOLEAN DEFAULT FALSE,
   PRIMARY KEY (serial_no)
 );
