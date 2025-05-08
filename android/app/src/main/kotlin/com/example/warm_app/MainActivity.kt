@@ -1,4 +1,4 @@
-package com.example.warm_app
+package com.warm.iarch_app
 
 import io.flutter.embedding.android.FlutterActivity
 
